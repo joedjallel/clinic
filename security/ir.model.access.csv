@@ -1,0 +1,24 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_partner_clinique,Partner Clinique,model_res_partner,group_caisse_admin,1,1,1,1
+access_medical_history,medical history,model_clinic_medical_history,group_caisse_admin,1,1,1,1
+access_act_clinique,Act Clinique,model_product_product,group_caisse_admin,1,1,1,1
+access_cash_statement_clinique,Cash Statement Clinique,model_clinic_cash_statement,group_caisse_admin,1,1,1,1
+access_cash_entry_clinique,Cash Entry Clinique,model_clinic_cash_entry,group_caisse_admin,1,1,1,1
+access_cash_entry_line_clinique,Cash Entry Line Clinique,model_clinic_cash_entry_line,group_caisse_admin,1,1,1,1
+access_cash_exit_clinique,Cash Exit Clinique,model_clinic_cash_exit,group_caisse_admin,1,1,1,1
+access_convention,Convention Clinique,model_clinic_convention,group_caisse_admin,1,1,1,1
+access_appointment,clinic.appointment,model_clinic_appointment,clinic.group_caisse_admin,1,1,1,1
+access_queue_stage,clinic.queue_stage,model_clinic_queue_stage,clinic.group_caisse_admin,1,1,1,1
+access_admission,admission Clinique,model_clinic_admission,group_caisse_admin,1,1,1,1
+access_service,clinic.service,model_clinic_service,clinic.group_caisse_admin,1,1,1,1
+access_bed,clinic.bed,model_clinic_bed,clinic.group_caisse_admin,1,1,1,1
+access_consultation_room,clinic.consultation.room,model_clinic_consultation_room,group_caisse_admin,1,1,1,1
+access_encounter,clinic.encounter.room,model_clinic_encounter,group_caisse_admin,1,1,1,1
+
+
+access_cash_statement_user,Cash Statement User,model_clinic_cash_statement,group_caisse_user,1,1,1,0
+access_act_clinique_user,Act Clinique User,model_product_product,group_caisse_user,1,1,1,0
+access_partner_clinique_user,Partner Clinique User,model_res_partner,group_caisse_user,1,1,1,0
+access_cash_entry_user,Cash Entry User,model_clinic_cash_entry,group_caisse_user,1,1,1,0
+access_cash_entry_line_user,Cash Entry Line User,model_clinic_cash_entry_line,group_caisse_user,1,1,1,0
+access_cash_exit_user,Cash Exit User,model_clinic_cash_exit,group_caisse_user,1,1,1,0

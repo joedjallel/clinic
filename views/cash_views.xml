@@ -1,0 +1,304 @@
+<odoo>
+    <record id="view_cash_statement_form" model="ir.ui.view">
+        <field name="name">clinic.cash_statement.form</field>
+        <field name="model">clinic.cash_statement</field>
+        <field name="arch" type="xml">
+            <form string="Relevé de Caisse">
+                <header>
+                    <button name="action_open" string="Ouvrir" type="object" class="oe_highlight"
+                            invisible=" state != 'draft'"/>
+                    <button name="action_close" string="Clôturer" type="object" class="oe_highlight"
+                            invisible=" state != 'open'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <!--
+                                            <div class="oe_button_box" name="button_box" position="inside">
+                                                <button name="open_AccountEntry"
+                                                        type="object" class="oe_stat_button" icon="fa-arrow-left">
+                                                    <field string="Entrée Caisse" name="total_cash_entry" widget="statinfo"/>
+                                                </button>
+                                                <button name="open_AccountExit"
+                                                        type="object" class="oe_stat_button" icon="fa-arrow-right">
+                                                    <field string="Sortie Caisse" name="total_cash_exit" widget="statinfo"/>
+                                                </button>
+                                                <button name="open_cote" string="Cote Parts"
+                                                        type="object" class="oe_stat_button"
+                                                        icon="fa-percent">
+                                                </button>
+
+                                            </div>
+                    -->
+                    <div class="oe_title oe_inline">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <label for="balance_start"/>
+                            <div>
+                                <field name="balance_start" readonly="1" nolabel="1"
+                                       class="oe_inline oe_subtotal_footer_separator"/>
+                            </div>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Encaissement">
+                            <field name="cash_entry_ids" widget="one2many" context="{'default_date': date }">
+                                <tree limit="500" widget="one2many">
+                                    <!-- Invisible fields -->
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="date"/>
+                                    <field name="n_bon"/>
+                                    <field name="patient_id"/>
+                                    <field name="doctor_id"/>
+                                    <field name="paid_by"/>
+                                    <field name="amount_total"/>
+                                    <field name="amount_payed"/>
+                                    <field name="amount_residual"/>
+                                    <field name="rest"/>
+                                    <field name="payment_state" widget="badge"
+                                           decoration-danger="payment_state == 'Non payé'"
+                                           decoration-success="payment_state == 'Payé'"
+                                           decoration-warning="payment_state == 'Partiellement payé'"/>
+                                    <field name="payment_ref"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Decaissement">
+
+                            <field name="cash_exit_ids" context="{'default_date': date }">
+                                <tree limit="500">
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="date"/>
+                                    <field name="n_bon"/>
+                                    <field name="partner_id"/>
+                                    <field name="motif"/>
+                                    <field name="montant"/>
+                                    <field name="note"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                        <field name="total_cash_entry"/>
+                        <field name="total_cash_exit"/>
+                        <label for="balance"/>
+                        <!--                            <field name="day_balance_end" nolabel="1" class="oe_subtotal_footer_separator"/>-->
+                        <field name="balance" readonly="1" nolabel="1"
+                               class="oe_subtotal_footer_separator"/>
+                    </group>
+                    <div class="oe_clear"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_cash_statement_tree" model="ir.ui.view">
+        <field name="name">clinic.cash_statement.tree</field>
+        <field name="model">clinic.cash_statement</field>
+        <field name="arch" type="xml">
+            <tree string="Relevés de Caisse">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="balance_start"/>
+                <field name="balance"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_cash_statement" model="ir.actions.act_window">
+        <field name="name">Relevés de Caisse</field>
+        <field name="res_model">clinic.cash_statement</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_cash_statement_tree"/>
+    </record>
+
+
+    <record id="view_cash_entry_form" model="ir.ui.view">
+        <field name="name">clinic.cash_entry.form</field>
+        <field name="model">clinic.cash_entry</field>
+        <field name="arch" type="xml">
+            <form string="Encaissement">
+                <header>
+                    <button name="print_bon" string="Imprimer" type="object" class="btn-primary" target="_blank"/>
+
+                </header>
+                <sheet>
+
+                    <widget name="web_ribbon" title="Payé"
+                            invisible="payment_state != 'Payé'"/>
+                    <widget name="web_ribbon" title="Partiellement Payé"
+                            invisible="payment_state != 'Partiellement payé'"
+                            bg_color="bg-warning"/>
+                    <widget name="web_ribbon" title="Non payé"
+                            invisible="payment_state != 'Non payé'"
+                            bg_color="bg-danger"/>
+
+                    <div class="oe_title">
+
+                        <h1 class="mt0">
+                            <field name="n_bon" readonly="1"/>
+                        </h1>
+
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="payment_state" invisible="1"/>
+                            <field name="state_dec" invisible="1"/>
+                            <field name="patient_id"/>
+                            <field name="paid_by"/>
+                            <field name="doctor_id" options="{'no_open': True,'no_create': True,}"/>
+                            <field name="convention_dec" widget="badge"
+                                   decoration-warning="state_dec =='En instance'"
+                                   decoration-success="state_dec =='Validé '"/>
+                            <field name="end_date_dec" widget="badge"
+                                   decoration-warning="state_dec =='En instance'"
+                                   decoration-success="state_dec =='Validé '"
+                            />
+                            <!--
+                              attrs="{'invisible': ['|',('patient_id', '=', False),('convention_dec', '=', False)]}"
+                            -->
+                            <!--
+                            options="{'no_open': True,'no_create': True,}"
+                            -->
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="payment_ref"/>
+                            <!--                            <field name="supplement"/>-->
+                            <field name="rest"/>
+                            <field name="left_to_pay"/>
+
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="ligne de facture">
+                            <field name="acts_ids" widget="one2many">
+                                <tree limit="500" editable="bottom" widget="one2many">
+                                    <field name="act_id"/>
+                                    <field name="rate_type"/>
+                                    <field name="doctor_id_dec" domain="[('id', '=',parent.doctor_id)]"/>
+                                    <field name="tax"/>
+                                    <field name="tax_amount"/>
+                                    <field name="amount"/>
+                                    <field name="difference_amount"/>
+
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                        <field name="montant"/>
+                        <field name="tax_amount"/>
+                        <label for="amount_total"/>
+                        <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator"/>
+                        <field name="amount_payed"/>
+                        <label for="amount_residual"/>
+                        <field name="amount_residual" nolabel="1" class="oe_subtotal_footer_separator"/>
+                    </group>
+                    <div class="oe_clear"/>
+
+                    <div class="oe_chatter">
+                        <field name="message_ids"/>
+                    </div>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_cash_entry_tree" model="ir.ui.view">
+        <field name="name">clinic.cash_entry.tree</field>
+        <field name="model">clinic.cash_entry</field>
+        <field name="arch" type="xml">
+            <tree string="Encaissements">
+                <field name="n_bon"/>
+                <field name="patient_id"/>
+                <field name="doctor_id"/>
+                <field name="statement_id"/>
+                <field name="date"/>
+                <field name="amount_total"/>
+                <field name="amount_payed"/>
+                <field name="amount_residual"/>
+                <field name="payment_state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_cash_entry" model="ir.actions.act_window">
+        <field name="name">Encaissements</field>
+        <field name="res_model">clinic.cash_entry</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_cash_entry_tree"/>
+    </record>
+
+
+    <record id="view_cash_exit_form" model="ir.ui.view">
+        <field name="name">clinic.cash_exit.form</field>
+        <field name="model">clinic.cash_exit</field>
+        <field name="arch" type="xml">
+            <form string="Décaissement">
+                <header>
+                    <button name="print_bon_d" string="Imprimer" type="object" class="btn-primary" target="_blank"/>
+
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label">
+                            <field name="n_bon" readonly="1" nolabel="1"/>
+                        </span>
+                    </div>
+                    <group>
+                        <field name="date"/>
+                        <field name="partner_id"/>
+                        <field name="motif" class="oe_inline"/>
+                        <field name="montant" class="oe_inline"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_cash_exit_tree" model="ir.ui.view">
+        <field name="name">clinic.cash_exit.tree</field>
+        <field name="model">clinic.cash_exit</field>
+        <field name="arch" type="xml">
+            <tree string="Décaissements">
+                <field name="n_bon"/>
+                <field name="statement_id"/>
+                <field name="partner_id"/>
+                <field name="date"/>
+                <field name="montant"/>
+                <field name="motif"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_cash_exit" model="ir.actions.act_window">
+        <field name="name">Décaissements</field>
+        <field name="res_model">clinic.cash_exit</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_cash_exit_tree"/>
+    </record>
+
+
+</odoo>

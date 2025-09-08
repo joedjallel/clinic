@@ -1,0 +1,51 @@
+<odoo>
+    <menuitem id="menu_clinique" name="Gestion Clinique"
+              sequence="10"/>
+    <menuitem id="menu_patients" name="Patients"
+              parent="menu_clinique"
+              action="action_partner_patient" sequence="20"/>
+    <menuitem id="menu_doctors" name="Médecins"
+              parent="menu_clinique"
+              action="action_partner_doctor" sequence="30"/>
+
+    <menuitem name="Caisse" id="menu_caisse" parent="menu_clinique" sequence="40"/>
+
+
+    <menuitem id="menu_cash_statements"
+              name="Relevés de Caisse" parent="menu_caisse" action="action_cash_statement"
+              sequence="60"/>
+    <menuitem id="menu_cash_entries" name="Encaissements" parent="menu_caisse" action="action_cash_entry"
+              sequence="60"/>
+    <menuitem id="menu_cash_exits" name="Décaissements" parent="menu_caisse" action="action_cash_exit" sequence="70"/>
+
+
+    <menuitem id="menu_acts" name="Actes Médicaux" parent="menu_clinique" action="action_act" sequence="50"/>
+
+    <menuitem id="menu_conventions" name="Conventions"
+              parent="menu_clinique" action="action_convention" sequence="60"/>
+
+    <menuitem id="menu_admission" name="Admission"
+              parent="menu_clinique" action="action_admission" sequence="70"/>
+
+    <menuitem id="menu_encounter" name="Consultation"
+              parent="menu_clinique" action="action_encounter" sequence="80"/>
+
+    <menuitem name="Infrastructure" id="menu_infrastructure" parent="menu_clinique" sequence="100"/>
+
+    <menuitem id="menu_bed" name="Lits"
+              parent="menu_infrastructure" action="action_bed"
+              sequence="10"/>
+
+    <menuitem id="menu_service" name="Service"
+              parent="menu_infrastructure" action="action_service"
+              sequence="20"/>
+
+    <menuitem id="menu_consultation_room" name="Salle de Consultations"
+              parent="menu_infrastructure" action="action_consultation_room"
+              sequence="50"/>
+
+
+    <menuitem id="menu_appointment" name="Rendez-vous"
+              action="action_appointment" parent="menu_clinique" sequence="90"/>
+
+</odoo>

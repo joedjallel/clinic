@@ -1,0 +1,189 @@
+<odoo>
+    <record id="view_partner_form_patient" model="ir.ui.view">
+        <field name="name">res.partner.form.patient</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form string="Patient">
+                <sheet>
+                    <group>
+                        <h2 class="mt0">
+                            <field name="patient_sequance" readonly="1"/>
+
+                        </h2>
+
+                    </group>
+                    <group string="Informations Générales">
+                        <group>
+                            <field name="name"/>
+                            <field name="maiden_name"/>
+                            <field name="date_of_birth"/>
+                            <field name="age"/>
+                            <field name="place_of_birth"/>
+                            <field name="Nationality"/>
+                        </group>
+                        <group>
+                            <field name="situation"/>
+                            <field name="Conjoint"/>
+                            <field name="street" string="Adresse"/>
+                            <field name="city" string="Wilaya"/>
+                            <field name="phone" string="Téléphone"/>
+                            <field name="email" string="Email"/>
+                            <field name="num_carte_chifa"/>
+                        </group>
+                    </group>
+                    <group string="Détails Cliniques">
+                        <field name="convention_id" string="Convention"/>
+                        <field name="end_date" string="Date de fin de convention"/>
+                        <field name="total_rest" readonly="1" string="Reste à payer"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Antécédents Médicaux">
+                            <field name="medical_history_ids">
+                                <tree editable="bottom">
+                                    <field name="history_type" string="Type d'antécédent"/>
+                                    <field name="description" string="Description"/>
+                                    <field name="date" string="Date"/>
+                                    <field name="doctor_id" string="Médecin"/>
+                                    <field name="notes" string="Notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Encaissements">
+                            <field name="transactions_cash_patient"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_patient" model="ir.ui.view">
+        <field name="name">res.partner.tree.patient</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree string="Patients">
+                <field name="patient_sequance"/>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="total_rest"/>
+                <field name="convention_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_partner_patient" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('patient', '=', True)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_partner_tree_patient')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_partner_form_patient')})]"/>
+
+        <field name="context">{'default_patient': True}</field>
+
+    </record>
+
+    <record id="view_partner_form_doctor" model="ir.ui.view">
+        <field name="name">res.partner.form.doctor</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form string="Médecin">
+                <sheet>
+                    <group>
+                        <h2 class="mt0">
+                            <field name="patient_sequance" readonly="1"/>
+                        </h2>
+
+                    </group>
+                    <group>
+                        <group string="Informations Générales">
+                            <field name="doctor" invisible="1"/>
+                            <field name="patient_sequance" readonly="1"/>
+                            <field name="name" string="Nom" required="1"/>
+                            <field name="speciality"/>
+                            <field name="phone" string="Téléphone"/>
+                            <field name="email" string="Email"/>
+                            <field name="street" string="Adresse"/>
+                        </group>
+                        <group string="Détails Financiers">
+                            <field name="percentage_cote_part"/>
+                            <field name="total_cote_part"/>
+                            <field name="total_cote_recue"/>
+                            <field name="total_cote_rest"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Reçue de la caisse">
+                            <field name="received_cash" widget="one2many">
+                                <tree create="false" edit="false" limit="50" widget="one2many">
+                                    <field name="date"/>
+                                    <field name="partner_id"/>
+                                    <field name="motif"/>
+                                    <field name="montant"/>
+                                    <field name="note"/>
+                                </tree>
+                            </field>
+
+                        </page>
+                        <page string="Cote Parts">
+                            <field name="transactions_cash" widget="one2many">
+                                <tree create="false" limit="50" editable="bottom" widget="one2many">
+                                    <field name="date_dec"/>
+                                    <field name="n_bon_dec"/>
+                                    <field name="patient_id_dec"/>
+                                    <field name="amount"/>
+                                    <field name="cote_part"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_doctor" model="ir.ui.view">
+        <field name="name">res.partner.tree.doctor</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree string="Médecins">
+                <field name="patient_sequance"/>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="percentage_cote_part"/>
+                <field name="total_cote_part"/>
+                <field name="total_cote_rest"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_partner_doctor" model="ir.actions.act_window">
+        <field name="name">Médecins</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('doctor', '=', True)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_partner_tree_doctor')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_partner_form_doctor')})]"/>
+        <field name="context">{'default_doctor': True}</field>
+
+    </record>
+</odoo>

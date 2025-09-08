@@ -1,0 +1,54 @@
+<odoo>
+    <record id="seq_cash_statement" model="ir.sequence">
+        <field name="name">Relevé de Caisse</field>
+        <field name="code">clinic.cash_statement</field>
+        <field name="prefix">CS/%(year)s/%(month)s/%(day)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_cash_entry" model="ir.sequence">
+        <field name="name">Encaissement</field>
+        <field name="code">clinic.cash_entry</field>
+        <field name="prefix">Bon N°</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_cash_exit" model="ir.sequence">
+        <field name="name">Décaissement</field>
+        <field name="code">clinic.cash_exit</field>
+        <field name="prefix">CX</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_act" model="ir.sequence">
+        <field name="name">Acte Médical</field>
+        <field name="code">clinic.act</field>
+        <field name="prefix">ACT/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_patient" model="ir.sequence">
+        <field name="name">Patient</field>
+        <field name="code">clinic.patient</field>
+        <field name="prefix">PAT/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_doctor" model="ir.sequence">
+        <field name="name">Médecin</field>
+        <field name="code">clinic.doctor</field>
+        <field name="prefix">DOC/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+
+    <record id="sequence_appointment" model="ir.sequence">
+        <field name="name">Séquence Rendez-vous</field>
+        <field name="code">clinic.appointment</field>
+        <field name="prefix">RDV</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

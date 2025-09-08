@@ -1,0 +1,17 @@
+<odoo>
+    <record id="stage_attente" model="clinic.queue_stage">
+        <field name="name">En Attente</field>
+        <field name="sequence">1</field>
+        <field name="pliable">False</field>
+    </record>
+    <record id="stage_en_cours" model="clinic.queue_stage">
+        <field name="name">En Cours</field>
+        <field name="sequence">2</field>
+        <field name="pliable">False</field>
+    </record>
+    <record id="stage_termine" model="clinic.queue_stage">
+        <field name="name">Terminé</field>
+        <field name="sequence">3</field>
+        <field name="pliable">True</field>
+    </record>
+</odoo>

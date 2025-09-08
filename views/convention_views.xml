@@ -1,0 +1,41 @@
+<odoo>
+    <record id="view_convention_form" model="ir.ui.view">
+        <field name="name">clinic.convention.form</field>
+        <field name="model">clinic.convention</field>
+        <field name="arch" type="xml">
+            <form string="Convention">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="open_conv_patient" string="Patient"
+                                type="object" class="oe_stat_button" icon="fa-user">
+                        </button>
+                    </div>
+                    <group>
+
+                        <field name="name"/>
+                        <field name="pricelist_id"/>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_convention_tree" model="ir.ui.view">
+        <field name="name">clinic.convention.tree</field>
+        <field name="model">clinic.convention</field>
+        <field name="arch" type="xml">
+            <tree string="Conventions">
+                <field name="name"/>
+                <!--                <field name="state"/>-->
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_convention" model="ir.actions.act_window">
+        <field name="name">Conventions</field>
+        <field name="res_model">clinic.convention</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_convention_tree"/>
+    </record>
+</odoo>

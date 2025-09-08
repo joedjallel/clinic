@@ -1,0 +1,57 @@
+<odoo>
+    <record id="view_admission_tree" model="ir.ui.view">
+        <field name="name">clinic.admission.tree</field>
+        <field name="model">clinic.admission</field>
+        <field name="arch" type="xml">
+            <tree string="Séjours">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="service_id"/>
+                <field name="bed_id"/>
+                <field name="admit_datetime"/>
+                <field name="discharge_planned"/>
+                <field name="discharge_datetime"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_admission_form" model="ir.ui.view">
+        <field name="name">clinic.admission.form</field>
+        <field name="model">clinic.admission</field>
+        <field name="arch" type="xml">
+            <form string="Admission">
+                <header>
+<!--                    <button name="action_admit" type="object" string="Admettre" class="oe_highlight"/>-->
+<!--                    <button name="action_discharge" type="object" string="Sortir"/>-->
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="patient_id"/>
+                            <field name="service_id"/>
+                            <field name="bed_id"/>
+                        </group>
+                        <group>
+                            <field name="admit_datetime"/>
+                            <field name="discharge_planned"/>
+                            <field name="discharge_datetime"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transferts">
+                            <field name="moves_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_admission" model="ir.actions.act_window">
+        <field name="name">Admissions</field>
+        <field name="res_model">clinic.admission</field>
+        <field name="view_mode">tree,form,kanban</field>
+    </record>
+</odoo>

@@ -1,0 +1,231 @@
+<odoo>
+
+    <record id="report_caiss_view" model="ir.actions.report">
+        <field name="name">Bon Caisse</field>
+        <field name="model">clinic.cash_entry</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic.bon</field>
+        <field name="report_file">Bon</field>
+        <field name="binding_model_id" ref="model_clinic_cash_entry"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="bon">
+        <t t-name="clinic.bon">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+
+
+                            <div class="oe_structure">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <strong>
+                                            ID du patient :
+                                        </strong>
+
+                                        <t t-esc="o.patient_id.patient_sequance"/>
+                                    </div>
+
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p class="text-left w-100">
+                                            <strong>
+                                                Patient :
+                                            </strong>
+                                            <t t-esc="o.patient_id.name"/>
+                                        </p>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p class="text-left w-100">
+                                            <strong>
+                                                Praticien :
+                                            </strong>
+                                            <t t-esc="o.doctor_id.name"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p class="text-left w-100">
+                                            <strong>
+                                                Date et Heure:
+                                            </strong>
+                                            <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
+
+
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4 class="text-center w-100">
+                                        <strong>
+                                            <t t-esc="o.n_bon"/>
+                                        </strong>
+                                    </h4>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="mt32 mb32">
+                                <table class="table table-sm m-0  border-info ">
+                                    <thead>
+                                        <tr>
+                                            <th>Désignation</th>
+                                            <th class="text-right">Montant</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.acts_ids" t-as="aml">
+
+                                            <td>
+                                                <span t-esc="aml.act_id.name"/>
+                                            </td>
+
+
+                                            <td class="text-right">
+                                                <span t-esc="aml.amount"
+                                                      t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                                            </td>
+
+                                        </tr>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row justify-content-end mt-2">
+                                <div class="col-5">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td>
+                                                <strong>Total</strong>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="o.montant"
+                                                      t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Montant Payé</strong>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="o.amount_payed"
+                                                      t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Rest à Payé</strong>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="o.amount_residual"
+                                                      t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+                    </t>
+
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="report_decaissement" model="ir.actions.report">
+        <field name="name">Bon decaissement</field>
+        <field name="model">clinic.cash_exit</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic.decaissement</field>
+        <field name="report_file">Bon decaissement</field>
+        <field name="binding_model_id" ref="model_clinic_cash_exit"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="decaissement">
+        <t t-name="clinic.decaissement">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <h1 class="text-center w-100">
+                                        <strong>
+                                            <t t-esc="o.n_bon"/>
+                                        </strong>
+                                    </h1>
+                                </div>
+                            </div>
+                            <br/>
+                            <br/>
+                            <div class="oe_structure">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h4 class="text-left w-100">
+                                            <strong>
+                                                Remis à :
+                                            </strong>
+                                            <t t-esc="o.partner_id.name"/>
+                                        </h4>
+                                    </div>
+                                </div>
+                                <br/>
+
+                            </div>
+                            <br/>
+                            <br/>
+                            <div class="mt32 mb32">
+                                <table class="table table-lg m-0 ">
+                                    <thead>
+                                        <tr>
+                                            <th>Date ET Heure</th>
+                                            <th>motif</th>
+                                            <th>Montant</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+
+                                            <td>
+                                                <span t-esc="o.date"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="o.motif"/>
+                                            </td>
+
+
+                                            <td>
+                                                <span t-esc="o.montant"
+                                                      t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                                            </td>
+
+                                        </tr>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
+  
+
+</odoo>

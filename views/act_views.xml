@@ -1,0 +1,48 @@
+<odoo>
+    <record id="view_act_form" model="ir.ui.view">
+        <field name="name">product.product.form.act</field>
+        <field name="model">product.product</field>
+        <field name="arch" type="xml">
+            <form string="Acte Médical">
+                <sheet>
+                    <group>
+                        <field name="default_code" readonly="1"/>
+                        <field name="name" string="Désignation" required="1"/>
+                        <field name="categ_id" string="Famille"/>
+                        <field name="list_price" string="Tarif public"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste pour les actes -->
+    <record id="view_act_tree" model="ir.ui.view">
+        <field name="name">product.product.tree.act</field>
+        <field name="model">product.product</field>
+        <field name="arch" type="xml">
+            <tree string="Actes Médicaux">
+                <field name="default_code" string="Code"/>
+                <field name="name" string="Désignation"/>
+                <field name="list_price" string="Tarif public"/>
+                <field name="categ_id" string="Famille"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action pour les actes -->
+    <record id="action_act" model="ir.actions.act_window">
+        <field name="name">Actes Médicaux</field>
+        <field name="res_model">product.product</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_medical_act', '=', True)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_act_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_act_form')})]"/>
+        <field name="context">{'default_is_medical_act': True}</field>
+
+    </record>
+</odoo>
