@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Encounter Form View -->
+        <record id="view_clinic_encounter_form" model="ir.ui.view">
+            <field name="name">clinic.encounter.form</field>
+            <field name="model">clinic.encounter</field>
+            <field name="arch" type="xml">
+                <form string="Consultation">
+                    <header>
+                        <button name="%(action_clinic_prescription)d" type="action" string="Nouvelle Prescription" class="btn-primary" context="{'default_encounter_id': active_id, 'default_patient_id': patient_id, 'default_doctor_id': doctor_id}" attrs="{'invisible': [('state', '=', 'done')]}"/>
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="patient_id"/>
+                                <field name="doctor_id"/>
+                                <field name="service_id"/>
+                                <field name="room_id"/>
+                            </group>
+                            <group>
+                                <field name="start"/>
+                                <field name="end"/>
+                                <field name="type"/>
+                                <field name="appointment_id"/>
+                                <field name="admission_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Observations">
+                                <field name="observations_ids">
+                                    <tree editable="bottom">
+                                        <field name="code"/>
+                                        <field name="value_float"/>
+                                        <field name="value_unit"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Prescriptions">
+                                <field name="prescriptions_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="date"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Encounter Tree View -->
+        <record id="view_clinic_encounter_tree" model="ir.ui.view">
+            <field name="name">clinic.encounter.tree</field>
+            <field name="model">clinic.encounter</field>
+            <field name="arch" type="xml">
+                <tree string="Consultations">
+                    <field name="name"/>
+                    <field name="patient_id"/>
+                    <field name="doctor_id"/>
+                    <field name="service_id"/>
+                    <field name="start"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Encounter Search View -->
+        <record id="view_clinic_encounter_search" model="ir.ui.view">
+            <field name="name">clinic.encounter.search</field>
+            <field name="model">clinic.encounter</field>
+            <field name="arch" type="xml">
+                <search string="Rechercher des consultations">
+                    <field name="name"/>
+                    <field name="patient_id"/>
+                    <field name="doctor_id"/>
+                    <field name="service_id"/>
+                    <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="En cours" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                    <filter string="Terminé" name="done" domain="[('state', '=', 'done')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Patient" name="patient" domain="[]" context="{'group_by': 'patient_id'}"/>
+                        <filter string="Médecin" name="doctor" domain="[]" context="{'group_by': 'doctor_id'}"/>
+                        <filter string="Service" name="service" domain="[]" context="{'group_by': 'service_id'}"/>
+                        <filter string="État" name="state" domain="[]" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Encounter Action -->
+        <record id="action_clinic_encounter" model="ir.actions.act_window">
+            <field name="name">Consultations</field>
+            <field name="res_model">clinic.encounter</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_clinic_encounter_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Créer une nouvelle consultation
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu Item -->
+        <menuitem id="menu_clinic_encounter"
+                  name="Consultations"
+                  parent="menu_clinic_root"
+                  action="action_clinic_encounter"
+                  sequence="30"/>
+    </data>
+</odoo>
