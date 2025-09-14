@@ -28,10 +28,11 @@ Caractéristiques Techniques:
 - Règles de sécurité et droits d'accès personnalisés
 - Tableaux de bord interactifs et KPIs
 - Gestion et suivi des documents
-Installation
-Prerequisites
 
-    A working Odoo 17 environment.
+#Installation
+##Prerequisites
+
+  ###  A working Odoo 17 environment.
 
 Steps
 
