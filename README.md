@@ -30,7 +30,7 @@ Caractéristiques Techniques:
 - Gestion et suivi des documents
 
 Installation
- Prerequisites
+   Prerequisites
 
     A working Odoo 17 environment.
 
