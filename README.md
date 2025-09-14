@@ -29,10 +29,10 @@ Caractéristiques Techniques:
 - Tableaux de bord interactifs et KPIs
 - Gestion et suivi des documents
 
-#Installation
-##Prerequisites
+Installation
+ Prerequisites
 
-  ###  A working Odoo 17 environment.
+    A working Odoo 17 environment.
 
 Steps
 
