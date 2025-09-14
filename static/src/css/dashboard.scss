@@ -1,0 +1,63 @@
+.o_clinic_dashboard {
+    padding: 20px;
+    background-color: #f8f9fa;
+    overflow-y: auto;
+    max-height: calc(100vh - var(--o-navbar-height, 50px) - var(--o-community-footer-height, 0px) - 20px);
+}
+
+.o_clinic_dashboard_header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.text-primary { color: #007bff !important; }
+.text-info { color: #17a2b8 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-danger { color: #dc3545 !important; }
+.text-success { color: #28a745 !important; }
+.text-muted { color: #6c757d !important; }
+
+.o_clinic_dashboard_loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: var(--o-brand-primary);
+}
+
+.card-body h2, .card-body h5 {
+    transition: opacity 0.3s ease;
+}
+
+.state-loading .card-body h2,
+.state-loading .card-body h5 {
+    opacity: 0.3;
+}

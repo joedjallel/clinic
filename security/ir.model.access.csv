@@ -10,10 +10,24 @@ access_convention,Convention Clinique,model_clinic_convention,group_caisse_admin
 access_appointment,clinic.appointment,model_clinic_appointment,clinic.group_caisse_admin,1,1,1,1
 access_queue_stage,clinic.queue_stage,model_clinic_queue_stage,clinic.group_caisse_admin,1,1,1,1
 access_admission,admission Clinique,model_clinic_admission,group_caisse_admin,1,1,1,1
+access_admission_move,move Clinique,model_clinic_admission_move,group_caisse_admin,1,1,1,1
+access_hospitalisation,hospitalisation Clinique,model_clinic_hospitalisation,group_caisse_admin,1,1,1,1
+access_nursing_plan,nursing plan Clinique,model_clinic_nursing_plan,group_caisse_admin,1,1,1,1
+access_nursing_plan_line,nursing plan line,model_clinic_nursing_plan_line,group_caisse_admin,1,1,1,1
 access_service,clinic.service,model_clinic_service,clinic.group_caisse_admin,1,1,1,1
 access_bed,clinic.bed,model_clinic_bed,clinic.group_caisse_admin,1,1,1,1
+access_bed_occupation,clinic.bed.occupation,model_clinic_bed_occupation,clinic.group_caisse_admin,1,1,1,1
 access_consultation_room,clinic.consultation.room,model_clinic_consultation_room,group_caisse_admin,1,1,1,1
 access_encounter,clinic.encounter.room,model_clinic_encounter,group_caisse_admin,1,1,1,1
+access_clinic_prescription_admin,access_clinic_prescription_admin,model_clinic_prescription,group_caisse_admin,1,1,1,1
+access_clinic_observation_admin,prescription_admin,model_clinic_observation,group_caisse_admin,1,1,1,1
+access_clinic_operating_room,poperating_room_admin,model_clinic_operating_room,group_caisse_admin,1,1,1,1
+access_clinic_operation,operation ,model_clinic_operation,group_caisse_admin,1,1,1,1
+access_clinic_kpi_or_occupation,kpi.or.occupation,model_clinic_kpi_or_occupation,group_caisse_admin,1,1,1,1
+
+
+access_clinic_prescription_user,access_clinic_prescription_user,model_clinic_prescription,clinic.group_caisse_user,1,1,1,0
+access_clinic_prescription_doctor,access_clinic_prescription_doctor,model_clinic_prescription,clinic.group_Med,1,1,1,0
 
 
 access_cash_statement_user,Cash Statement User,model_clinic_cash_statement,group_caisse_user,1,1,1,0

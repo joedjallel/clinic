@@ -1,0 +1,17 @@
+__pycache__/__init__.cpython-312.pyc
+controllers/__pycache__/__init__.cpython-312.pyc
+controllers/__pycache__/controllers.cpython-312.pyc
+controllers/__pycache__/dashboard.cpython-312.pyc
+models/__pycache__/__init__.cpython-312.pyc
+models/__pycache__/act.cpython-312.pyc
+models/__pycache__/admission.cpython-312.pyc
+models/__pycache__/appointment.cpython-312.pyc
+models/__pycache__/cash.cpython-312.pyc
+models/__pycache__/consultation.cpython-312.pyc
+models/__pycache__/convention.cpython-312.pyc
+models/__pycache__/hc_base.cpython-312.pyc
+models/__pycache__/hospitalisation.cpython-312.pyc
+models/__pycache__/medical_history.cpython-312.pyc
+models/__pycache__/operating_room.cpython-312.pyc
+models/__pycache__/partner.cpython-312.pyc
+models/__pycache__/prescription.cpython-312.pyc

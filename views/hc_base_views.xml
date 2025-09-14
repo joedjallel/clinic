@@ -41,63 +41,9 @@
     <field name="view_mode">tree,form</field>
   </record>
 
-  <record id="view_encounter_tree" model="ir.ui.view">
-    <field name="name">clinic.encounter.tree</field>
-    <field name="model">clinic.encounter</field>
-    <field name="arch" type="xml">
-      <tree string="Consultations">
-        <field name="name"/>
-        <field name="patient_id"/>
-        <field name="service_id"/>
-        <field name="start"/>
-        <field name="state"/>
-      </tree>
-    </field>
-  </record>
 
-  <record id="view_encounter_form" model="ir.ui.view">
-    <field name="name">clinic.encounter.form</field>
-    <field name="model">clinic.encounter</field>
-    <field name="arch" type="xml">
-      <form string="Consultation">
- <!--       <header>
-          <button name="action_start" type="object" string="Commencer"/>
-          <button name="action_done" type="object" string="Terminer"/>
-          <field name="state" widget="statusbar"/>
-        </header>
- -->       <sheet>
-          <group>
-            <group>
-              <field name="name" readonly="1"/>
-              <field name="patient_id"/>
-              <field name="service_id"/>
-              <field name="start"/>
-              <field name="end"/>
-            </group>
-            <group>
-              <field name="type"/>
-            </group>
-          </group>
-          <notebook>
-            <page string="Observations">
-              <field name="observations_ids"/>
-            </page>
 
-            <page string="Prescriptions">
-              <field name="prescriptions_ids"/>
-            </page>
-          </notebook>
-        </sheet>
-      </form>
-    </field>
-  </record>
-
-  <record id="action_encounter" model="ir.actions.act_window">
-    <field name="name">Consultations</field>
-    <field name="res_model">clinic.encounter</field>
-    <field name="view_mode">tree,form</field>
-  </record>
-
+<!--
   <record id="view_prescription_tree" model="ir.ui.view">
     <field name="name">clinic.prescription.tree</field>
     <field name="model">clinic.prescription</field>
@@ -120,7 +66,7 @@
           <group>
             <field name="name" readonly="1"/>
             <field name="patient_id"/>
-            <field name="physician_id"/>
+&lt;!&ndash;            <field name="physician_id"/>&ndash;&gt;
             <field name="datetime"/>
           </group>
           <field name="lines_ids"/>
@@ -134,5 +80,6 @@
     <field name="res_model">clinic.prescription</field>
     <field name="view_mode">tree,form,kanban</field>
   </record>
+-->
 
 </odoo>

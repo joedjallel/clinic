@@ -29,8 +29,9 @@ class Appointment(models.Model):
         'clinic.queue_stage',
         string='Étape File d\'Attente',
         required=False,
-        default=lambda self: self.env['clinic.queue_stage'].search([('sequence', '=', 1)], limit=1)
-
+        store=True,
+        default=lambda self: self.env['clinic.queue_stage'].search([('sequence', '=', 1)], limit=1),
+        group_expand='_read_group_stage_ids',
     )
 
     priorite = fields.Selection([
@@ -41,6 +42,10 @@ class Appointment(models.Model):
     couleur = fields.Integer(string='Index Couleur', )
 
     room_id = fields.Many2one("clinic.consultation.room", string="Salle de Consultation", ondelete="restrict")
+
+    @api.model
+    def _read_group_stage_ids(self, stages, domain, order):
+        return self.env['clinic.queue_stage'].search([], order=order)
 
     @api.model
     def create(self, vals):

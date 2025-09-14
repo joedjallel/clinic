@@ -7,7 +7,6 @@
                 <field name="name"/>
                 <field name="patient_id"/>
                 <field name="service_id"/>
-                <field name="bed_id"/>
                 <field name="admit_datetime"/>
                 <field name="discharge_planned"/>
                 <field name="discharge_datetime"/>
@@ -21,8 +20,8 @@
         <field name="arch" type="xml">
             <form string="Admission">
                 <header>
-<!--                    <button name="action_admit" type="object" string="Admettre" class="oe_highlight"/>-->
-<!--                    <button name="action_discharge" type="object" string="Sortir"/>-->
+                    <button name="action_confirm_admission" type="object" string="Admettre" class="oe_highlight"/>
+                    <!--                    <button name="action_discharge" type="object" string="Sortir"/>-->
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
@@ -30,6 +29,7 @@
                         <group>
                             <field name="name" readonly="1"/>
                             <field name="patient_id"/>
+                            <field name="act_id"/>
                             <field name="service_id"/>
                             <field name="bed_id"/>
                         </group>

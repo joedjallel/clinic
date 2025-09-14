@@ -1,0 +1,82 @@
+.o_encounter_manager {
+    padding: 20px;
+}
+.o_encounter_list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.o_encounter_card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 200px;
+    background: #f9f9f9;
+}
+.o_encounter_card.o_selected {
+    background: #e0f7fa;
+}
+.o_encounter_details {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-top: 20px;
+    background: #fff;
+}
+
+.o_encounter_details label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.o_encounter_details select,
+.o_encounter_details textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.o_encounter_details textarea {
+    min-height: 100px;
+}
+
+.o_encounter_actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.o_encounter_actions button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.o_encounter_actions .btn-primary {
+    background-color: #00A09D;
+    color: white;
+    border: none;
+}
+
+.o_encounter_actions .btn-secondary {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+}
+
+.o_loading_indicator {
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    color: #666;
+}
+
+.o_loading_indicator .fa-spinner {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.o_error_message {
+    margin: 15px 0;
+    padding: 10px 15px;
+}

@@ -8,6 +8,29 @@
               parent="menu_clinique"
               action="action_partner_doctor" sequence="30"/>
 
+    <record id="reception_dashboard_action" model="ir.actions.client">
+        <field name="name">Reception Dashboard</field>
+        <field name="tag">clinic.encounter_manager</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem name="Dashboard" id="reception_dashboard_menu"
+              parent="menu_clinique" sequence="0"
+              action="reception_dashboard_action"/>
+
+
+    <record id="action_manager_dashboard_owl" model="ir.actions.client">
+        <field name="name">Tableau de bord du Manager</field>
+        <field name="tag">clinic.manager_dashboard</field>
+    </record>
+
+    <!-- Menu for the Dashboard -->
+    <menuitem id="menu_manager_dashboard_owl"
+              name="Tableau de bord"
+              parent="menu_clinique"
+              action="action_manager_dashboard_owl"
+              sequence="2"/>
+
     <menuitem name="Caisse" id="menu_caisse" parent="menu_clinique" sequence="40"/>
 
 
@@ -19,13 +42,38 @@
     <menuitem id="menu_cash_exits" name="Décaissements" parent="menu_caisse" action="action_cash_exit" sequence="70"/>
 
 
-    <menuitem id="menu_acts" name="Actes Médicaux" parent="menu_clinique" action="action_act" sequence="50"/>
+    <menuitem id="menu_acts" name="Actes Médicaux" parent="menu_clinique" action="action_act" sequence="80"/>
 
     <menuitem id="menu_conventions" name="Conventions"
               parent="menu_clinique" action="action_convention" sequence="60"/>
 
+
     <menuitem id="menu_admission" name="Admission"
               parent="menu_clinique" action="action_admission" sequence="70"/>
+
+    <menuitem id="menu_hospitalisation"
+              name="Dossiers de séjour"
+              parent="menu_clinique"
+              action="action_hospitalisation"
+              sequence="78"/>
+    <menuitem name="Blocs opératoires" id="menu_bloc_operatoire" parent="menu_clinique" sequence="50"/>
+
+    <menuitem id="menu_operating_room"
+              name="Blocs opératoires"
+              parent="menu_bloc_operatoire"
+              action="action_operating_room"
+              sequence="10"/>
+    <menuitem id="menu_operation"
+              name="Interventions"
+              parent="menu_bloc_operatoire"
+              action="action_operation"
+              sequence="20"/>
+
+    <menuitem id="menu_kpi_or"
+              name="KPI Bloc opératoire"
+              parent="menu_bloc_operatoire"
+              action="action_kpi_or_occupation"
+              sequence="30"/>
 
     <menuitem id="menu_encounter" name="Consultation"
               parent="menu_clinique" action="action_encounter" sequence="80"/>

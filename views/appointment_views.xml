@@ -4,14 +4,17 @@
         <field name="name">clinic.appointment.kanban</field>
         <field name="model">clinic.appointment</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="etape_file" quick_create="false" class="o_kanban_small_column">
+            <kanban default_group_by="etape_file"
+                    on_create="quick_create"
+                    quick_create_view="clinic.appointment_quick_create_view"
+                    class="o_kanban_small_column">
                 <field name="name"/>
                 <field name="patient_id"/>
                 <field name="doctor_id"/>
                 <field name="date_rdv"/>
                 <field name="etat"/>
                 <field name="priorite"/>
-                <field name="etape_file"/>
+                <field name="etape_file" options="{'group_expand': '_read_group_stage_ids'}"/>
 
                 <templates>
                     <t t-name="kanban-box">
@@ -69,6 +72,23 @@
                     </t>
                 </templates>
             </kanban>
+        </field>
+    </record>
+
+    <record id="appointment_quick_create_view" model="ir.ui.view">
+        <field name="name">clinic.appointment.quick_create</field>
+        <field name="model">clinic.appointment</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="patient_id" string="Patient"/>
+                    <field name="doctor_id" string="Médecin"/>
+                    <field name="room_id" string="Salle de consultation"/>
+                    <field name="priorite" string="Priorité"/>
+
+                </group>
+            </form>
         </field>
     </record>
 
@@ -130,48 +150,42 @@
         </field>
     </record>
 
-    <!--
-        <record id="appointment_search_view" model="ir.ui.view">
-            <field name="name">clinic.appointment.search</field>
-            <field name="model">clinic.appointment</field>
-            <field name="arch" type="xml">
-                <search>
-                    <field name="patient_id"/>
-                    <field name="doctor_id"/>
-                    <field name="date_rdv"/>
-                    <field name="etape_file"/>
-                    <filter string="Aujourd'hui" name="today"
-                            domain="[('date_rdv', '&gt;=', context_today()), ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
-                    <filter string="Cette semaine" name="this_week"
-                            domain="[('date_rdv', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')), ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=(6-context_today().weekday()))).strftime('%Y-%m-%d'))]"/>
-                    <separator/>
-                    <filter string="Brouillon" name="brouillon" domain="[('etat', '=', 'brouillon')]"/>
-                    <filter string="Confirmé" name="confirme" domain="[('etat', '=', 'confirme')]"/>
-                    <filter string="En Cours" name="en_cours" domain="[('etat', '=', 'en_cours')]"/>
-                    <filter string="Terminé" name="termine" domain="[('etat', '=', 'termine')]"/>
-                    <separator/>
-                    <filter string="Urgente" name="urgente" domain="[('priorite', '=', 'urgente')]"/>
-                    <group expand="1" string="Grouper par">
-                        <filter name="group_etape_file" string="Étape File" context="{'group_by': 'etape_file'}"/>
-                        <filter name="group_doctor_id" string="Médecin" context="{'group_by': 'doctor_id'}"/>
-                        <filter name="group_etat" string="État" context="{'group_by': 'etat'}"/>
-                        <filter name="group_date" string="Date" context="{'group_by': 'date_rdv:day'}"/>
-                    </group>
-                </search>
-            </field>
-        </record>
-    -->
+    <record id="appointment_search_view" model="ir.ui.view">
+        <field name="name">clinic.appointment.search</field>
+        <field name="model">clinic.appointment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/>
+                <field name="doctor_id"/>
+                <field name="date_rdv"/>
+                <field name="etape_file"/>
+                <filter string="Aujourd'hui" name="today"
+                        domain="[('date_rdv', '&gt;=', context_today()), ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Cette semaine" name="this_week"
+                        domain="[('date_rdv', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')), ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=(6-context_today().weekday()))).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Brouillon" name="brouillon" domain="[('etat', '=', 'brouillon')]"/>
+                <filter string="Confirmé" name="confirme" domain="[('etat', '=', 'confirme')]"/>
+                <filter string="En Cours" name="en_cours" domain="[('etat', '=', 'en_cours')]"/>
+                <filter string="Terminé" name="termine" domain="[('etat', '=', 'termine')]"/>
+                <separator/>
+                <filter string="Urgente" name="urgente" domain="[('priorite', '=', 'urgente')]"/>
+                <group expand="1" string="Grouper par">
+                    <filter name="group_etape_file" string="Étape File" context="{'group_by': 'etape_file'}"/>
+                    <filter name="group_doctor_id" string="Médecin" context="{'group_by': 'doctor_id'}"/>
+                    <filter name="group_etat" string="État" context="{'group_by': 'etat'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date_rdv:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
-    <!-- Action Menu -->
     <record id="action_appointment" model="ir.actions.act_window">
         <field name="name">Rendez-vous</field>
         <field name="res_model">clinic.appointment</field>
         <field name="view_mode">kanban,tree,form</field>
-        <!--    <field name="search_view_id" ref="appointment_search_view"/>-->
-        <field name="context">{
-            'group_by': ['etape_file']
-            }
-        </field>
+        <field name="search_view_id" ref="appointment_search_view"/>
+        <field name="context">{'group_by': 'etape_file'}</field>
         <field name="view_ids" eval="[(5, 0, 0),
         (0, 0, {'view_mode': 'kanban', 'view_id': ref('clinic_appointment_kanban_view')}),
         (0, 0, {'view_mode': 'tree', 'view_id': ref('appointment_tree_view')}),

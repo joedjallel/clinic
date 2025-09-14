@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_operating_room_kanban" model="ir.ui.view">
+        <field name="name">clinic.operating.room.kanban</field>
+        <field name="model">clinic.operating.room</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card">
+                            <strong>
+                                <field name="name"/>
+                            </strong>
+                            (<field name="code"/>)
+                            <br/>
+                            <span t-if="record.state.raw_value=='free'" class="badge bg-success">Libre</span>
+                            <span t-if="record.state.raw_value=='busy'" class="badge bg-danger">Occupée</span>
+                            <span t-if="record.state.raw_value=='blocked'" class="badge bg-warning">Bloquée</span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- SALLES : FORM -->
+    <record id="view_operating_room_form" model="ir.ui.view">
+        <field name="name">clinic.operating.room.form</field>
+        <field name="model">clinic.operating.room</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="service_id"/>
+                            <field name="state"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Remarques..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- INTERVENTIONS : TREE -->
+    <record id="view_operation_tree" model="ir.ui.view">
+        <field name="name">clinic.operation.tree</field>
+        <field name="model">clinic.operation</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="state=='cancel'" decoration-success="state=='done'">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="room_id"/>
+                <field name="start_datetime"/>
+                <field name="surgeon_id"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- INTERVENTIONS : FORM -->
+    <record id="view_operation_form" model="ir.ui.view">
+        <field name="name">clinic.operation.form</field>
+        <field name="model">clinic.operation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" string="Confirmer" type="object"/>
+                    <button name="action_start" string="Démarrer" type="object"/>
+                    <button name="action_done" string="Terminer" type="object"
+                            class="oe_highlight"/>
+                    <button name="action_cancel" string="Annuler" type="object"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="patient_id"/>
+                            <field name="room_id"/>
+                            <field name="start_datetime"/>
+                            <field name="duration_minutes"/>
+                        </group>
+                        <group>
+                            <field name="intervention_id"/>
+                            <field name="surgeon_id"/>
+                            <field name="anesthetist_id"/>
+                            <field name="nurse_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Compte-rendu">
+                            <field name="report" widget="html"/>
+                        </page>
+
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_operation_calendar" model="ir.ui.view">
+        <field name="name">clinic.operation.calendar</field>
+        <field name="model">clinic.operation</field>
+        <field name="arch" type="xml">
+            <calendar
+                    string="Planning opératoire"
+                    date_start="start_datetime"
+                    date_stop="stop_datetime"
+                    mode="week"
+                    quick_create="false"
+                    color="room_id"
+            >
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="surgeon_id"/>
+                <field name="room_id"/>
+            </calendar>
+        </field>
+    </record>
+    <!-- INTERVENTIONS : KANBAN (par statut) -->
+    <record id="view_operation_kanban" model="ir.ui.view">
+        <field name="name">clinic.operation.kanban</field>
+        <field name="model">clinic.operation</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="room_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card">
+                            <strong>
+                                <field name="name"/>
+                            </strong>
+                            <br/>
+                            <field name="patient_id"/>
+                            <br/>
+                            <field name="room_id"/>
+                            <br/>
+                            <span class="badge">
+                                <field name="state"/>
+                            </span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ACTIONS -->
+    <record id="action_operating_room" model="ir.actions.act_window">
+        <field name="name">Salles opératoires</field>
+        <field name="res_model">clinic.operating.room</field>
+        <field name="view_mode">kanban,form</field>
+    </record>
+
+    <record id="view_operation_timeline" model="ir.ui.view">
+        <field name="name">clinic.operation.timeline</field>
+        <field name="model">clinic.operation</field>
+        <field name="arch" type="xml">
+            <timeline string="Planning opératoire Gantt"
+                      date_start="start_datetime"
+                      date_stop="stop_datetime"
+                      default_group_by="room_id"
+                      zoomKey="ctrlKey"
+                      event_open_popup="true"
+                      colors="#ffffff:state=='draft';#2196F3:state=='scheduled';#FF9800:state=='in_progress';#4CAF50:state=='done';#F44336:state=='cancel'">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="surgeon_id"/>
+                <field name="state"/>
+            </timeline>
+        </field>
+    </record>
+
+
+   <record id="action_operation" model="ir.actions.act_window">
+    <field name="name">Interventions</field>
+    <field name="res_model">clinic.operation</field>
+    <field name="view_mode">timeline,calendar,tree,form,kanban</field>
+    <field name="view_ids" eval="[(5, 0, 0),
+        (0, 0, {'view_mode': 'timeline', 'view_id': ref('view_operation_timeline')}),
+        (0, 0, {'view_mode': 'calendar', 'view_id': ref('view_operation_calendar')}),
+        (0, 0, {'view_mode': 'tree', 'view_id': ref('view_operation_tree')}),
+        (0, 0, {'view_mode': 'form', 'view_id': ref('view_operation_form')}),
+        (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_operation_kanban')}),
+    ]"/>
+</record>
+
+
+
+
+    <!-- views/kpi_or_views.xml -->
+    <record id="view_kpi_or_pivot" model="ir.ui.view">
+        <field name="name">clinic.kpi.or.occupation.pivot</field>
+        <field name="model">clinic.kpi.or.occupation</field>
+        <field name="arch" type="xml">
+            <pivot string="Occupation salles OR">
+                <field name="day" type="col" interval="week"/>
+                <field name="room_id" type="row"/>
+                <field name="occupation_rate_percent" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_kpi_or_graph" model="ir.ui.view">
+        <field name="name">clinic.kpi.or.occupation.graph</field>
+        <field name="model">clinic.kpi.or.occupation</field>
+        <field name="arch" type="xml">
+            <graph type="line">
+                <field name="day" type="row" interval="day"/>
+                <field name="occupation_rate_percent" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_kpi_or_occupation" model="ir.actions.act_window">
+        <field name="name">KPI Occupation OR</field>
+        <field name="res_model">clinic.kpi.or.occupation</field>
+        <field name="view_mode">pivot,graph</field>
+    </record>
+
+
+</odoo>

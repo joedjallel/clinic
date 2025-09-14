@@ -60,18 +60,6 @@ class Partner(models.Model):
     transactions_cash_patient = fields.One2many('clinic.cash_entry', 'patient_id', string='Encaissements patient')
     medical_history_ids = fields.One2many('clinic.medical_history', 'patient_id', string='Antécédent Médical')
 
-
-
-    @api.model
-    def create(self, vals):
-        if vals.get('patient'):
-            vals['patient_sequance'] = self.env['ir.sequence'].next_by_code('clinic.patient') or _('Nouveau')
-            vals['is_customer'] = True
-        elif vals.get('doctor'):
-            vals['patient_sequance'] = self.env['ir.sequence'].next_by_code('clinic.doctor') or _('Nouveau')
-            vals['is_company'] = False
-        return super(Partner, self).create(vals)
-
     @api.constrains('patient', 'doctor')
     def _check_role_exclusivity(self):
         for record in self:

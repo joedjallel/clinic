@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="clinic.ManagerDashboard">
+        <div class="o_clinic_dashboard" t-att-class="state.loading ? 'state-loading' : ''">
+
+            <div class="o_clinic_dashboard_header">
+                <h1>Tableau de bord Clinique</h1>
+                <p>Données en temps réel des performances cliniques</p>
+                <button class="btn btn-primary" t-on-click="fetchData">Actualiser</button>
+            </div>
+
+            <t t-if="state.error">
+                <div class="alert alert-danger" t-esc="state.error"/>
+            </t>
+
+            <t t-if="state.loading">
+                <div class="o_clinic_dashboard_loading">
+                    <div class="spinner-border" role="status"></div>
+                    <p>Chargement des données du tableau de bord...</p>
+                </div>
+            </t>
+
+            <t t-else="">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">Patients</h5>
+                                <h2 class="card-text" t-esc="state.total_patients"/>
+                                <p class="text-muted">Total des patients enregistrés</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title text-info">Médecins</h5>
+                                <h2 class="card-text" t-esc="state.total_doctors"/>
+                                <p class="text-muted">Total des médecins enregistrés</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning">Admissions Actuelles</h5>
+                                <h2 class="card-text" t-esc="state.total_admissions"/>
+                                <p class="text-muted">Patients actuellement admis</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title text-danger">Délai de Paiement Moyen</h5>
+                                <h2 class="card-text" t-esc="state.avg_payment_delay.toFixed(2)"/>
+                                <p class="text-muted">Jours moyens pour le paiement</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h3>Aperçu des Activités</h3>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Rendez-vous (7 derniers jours)</h5>
+                                <div style="position: relative; height: 400px;">
+
+                                <canvas t-ref="appointmentsChart"/>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Consultations par Type</h5>
+                                <div style="position: relative; height: 400px;">
+
+                                    <canvas t-ref="consultationsChart"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">État des Encaissements</h5>
+                                    <div style="position: relative; height: 400px;">
+                                    <canvas t-ref="cashEntryChart"/>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                <h5 class="card-title">Occupation salles OR (7 derniers jours)</h5>
+                                    <div style="position: relative; height: 400px;">
+                                        <canvas t-ref="orOccupationChart"/>
+                                    </div>
+                            </div>
+                            </div>
+                        </div>
+
+                </div>
+                <div class="row mt-4">
+                     <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Solde des Relevés de Caisse</h5>
+                                <div style="position: relative; height: 400px;">
+                                      <canvas t-ref="cashStatementChart"/>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="clinic.EncounterManagerTemplate">
+        <div class="o_encounter_manager">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 t-if="isReceptionist">Gestion des Consultations - Réceptionniste</h2>
+                    <h2 t-if="isDoctor">Gestion des Consultations - Médecin</h2>
+                </div>
+                <button class="btn btn-sm btn-secondary o_refresh_button" t-on-click="refreshData">
+                    <i class="fa fa-refresh"/> Actualiser
+                </button>
+            </div>
+            
+            <!-- Loading indicator -->
+            <div t-if="state.isLoading" class="o_loading_indicator">
+                <i class="fa fa-spinner fa-spin"/> Chargement en cours...
+            </div>
+            
+            <!-- Error message -->
+            <div t-if="state.error" class="o_error_message alert alert-danger">
+                <i class="fa fa-exclamation-triangle"/> <t t-esc="state.error"/>
+            </div>
+
+            <!-- Liste des consultations -->
+            <div t-if="!state.isLoading" class="o_encounter_list">
+                <t t-foreach="state.encounters" t-as="encounter" t-key="encounter.id">
+                    <div class="o_encounter_card" t-att-class="{ 'o_selected': encounter.id === state.selectedEncounter?.id }">
+                        <span>N° Rencontre: <t t-esc="encounter.name"/></span>
+
+                        <span>Patient: <t t-esc="encounter.patient_id[1]"/></span>
+                        <span>Rendez-vous: <t t-esc="encounter.appointment_id ? encounter.appointment_id[1] : 'Aucun'"/></span>
+                        <span>Salle: <t t-esc="encounter.room_id ? encounter.room_id[1] : 'Non assignée'"/></span>
+                        <span>Date Début: <t t-esc="encounter.start"/></span>
+                        <span>État: <t t-esc="encounter.state"/></span>
+                        <button  t-on-click="() => updateState(encounter.id, 'in_progress')">Démarrer</button>
+                        <button  t-on-click="() => updateState(encounter.id, 'done')">Terminer</button>
+                        <button t-on-click="() => selectEncounter(encounter)">Détails</button>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Détails de la consultation -->
+            <t t-if="state.selectedEncounter">
+                <div class="o_encounter_details">
+                    <h3>Détails de la Consultation</h3>
+                    <t t-if="isReceptionist">
+                        <label>Type:</label>
+                        <select t-model="state.selectedEncounter.type">
+                            <option value="ambu">Ambulatoire</option>
+                            <option value="inpatient">Hospitalisé</option>
+                            <option value="emergency">Urgence</option>
+                        </select>
+                        <label>Salle:</label>
+                        <select t-model="state.selectedEncounter.room_id">
+                            <option t-foreach="state.rooms" t-as="room" t-key="room.id" t-att-value="room.id">
+                                <t t-esc="room.name"/>
+                            </option>
+                        </select>
+                        <label>Service:</label>
+                        <select t-model="state.selectedEncounter.service_id">
+                            <option t-foreach="state.services" t-as="service" t-key="service.id" t-att-value="service.id">
+                                <t t-esc="service.name"/>
+                            </option>
+                        </select>
+                        <div class="form-group">
+                            <label for="doctor">Médecin</label>
+                            <select class="form-control" t-on-change="(ev) => state.selectedEncounter.doctor_id = parseInt(ev.target.value)">
+                                <option value="">Sélectionner un médecin</option>
+                                <t t-foreach="state.doctors" t-as="doctor" t-key="doctor.id">
+                                    <option t-att-value="doctor.id" t-att-selected="doctor.id === state.selectedEncounter.doctor_id"><t t-esc="doctor.name"/></option>
+                                </t>
+                            </select>
+                        </div>
+                    </t>
+                    <t t-if="isDoctor">
+                        <label>Observations:</label>
+                        <textarea t-model="state.selectedEncounter.observations_ids"/>
+                        <label>Procédures:</label>
+                        <textarea t-model="state.selectedEncounter.procedures_ids"/>
+                        <label>Prescriptions:</label>
+                        <textarea t-model="state.selectedEncounter.prescriptions_ids"/>
+                    </t>
+                    <div class="o_encounter_actions">
+                        <button class="btn btn-primary" t-on-click="saveEncounter">Enregistrer</button>
+                        <button class="btn btn-secondary" t-on-click="closeDetails">Fermer</button>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

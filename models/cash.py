@@ -41,7 +41,7 @@ class CashStatement(models.Model):
     balance_start = fields.Monetary(string='Solde Initiale', compute='_compute_starting_balance', readonly=False,
                                     store=True)
 
-    previous_statement_id = fields.Many2one('clinic.statement',
+    previous_statement_id = fields.Many2one('clinic.cash_statement',
                                             help='technical field to compute starting balance correctly',
                                             compute='_get_previous_statement', store=True)
 
@@ -51,7 +51,7 @@ class CashStatement(models.Model):
     total_cash_exit = fields.Monetary(string='Total Décaissements', compute='_compute_totals', store=True)
     balance = fields.Monetary(string='Solde', compute='_compute_totals', store=True)
     currency_id = fields.Many2one('res.currency', string='Devise', default=lambda self: self.env.company.currency_id)
-    date_done = fields.Datetime(string="Closed On")
+    date_done = fields.Datetime(string="Date de clôture")
 
     @api.model
     def create(self, vals):
@@ -95,10 +95,10 @@ class CashEntry(models.Model):
         ('Conjoint', 'Conjoint'),
         ('Pére', 'Pére'),
         ('Mére', 'Mére'),
-        ('Autre', 'Autre')], string='Payment effectué par', )
+        ('Autre', 'Autre')], string='Payé par', )
 
 
-    acts_ids = fields.One2many('clinic.cash_entry.line', 'entry_id', string='les actes opératoire ',
+    acts_ids = fields.One2many('clinic.cash_entry.line', 'entry_id', string='Actes',
                                copy=True, )
 
     tax_amount = fields.Monetary(string='Montant Taxe', compute='_compute_amount', readonly=True, store=True)
@@ -109,9 +109,9 @@ class CashEntry(models.Model):
 
     amount_payed = fields.Monetary(string='Montant Payé', readonly=False, store=True, )
 
-    amount_residual = fields.Monetary(string='Rest à Payé', store=True, compute='_compute_amount_residual')
+    amount_residual = fields.Monetary(string='Reste à payer', store=True, compute='_compute_amount_residual')
 
-    payment_ref = fields.Char(string='Observation')
+    payment_ref = fields.Char(string='Référence de paiement')
 
     # cote_part = fields.Monetary(string='Cote Part ', readonly=False, compute='_compte_cote', store=True)
 
@@ -122,20 +122,20 @@ class CashEntry(models.Model):
     ], string="État du paiement", store=True, readonly=True, copy=False, tracking=True,
     )
 
-    supplement = fields.Boolean(default=False, string='supplement')
+    supplement = fields.Boolean(default=False, string='Supplément')
 
-    rest = fields.Boolean(default=False, string=' Payment du rest', store=True, )
+    rest = fields.Boolean(default=False, string='Paiement du reste', store=True, )
 
-    previous_encaissement_id = fields.Many2one('clinic.cash_entry', compute='_get_previous_encaissement',
+    previous_encaissement_id = fields.Many2one('clinic.cash_entry', string='Encaissement précédent', compute='_get_previous_encaissement',
                                                store=True)
 
-    left_to_pay = fields.Monetary(string='Rest régler', store=True, compute='_compute_left_to_pay')
+    left_to_pay = fields.Monetary(string='Reste à régler', store=True, compute='_compute_left_to_pay')
 
     convention_dec = fields.Many2one(string='Convention', related='patient_id.convention_id')
 
-    state_dec = fields.Selection(string='Etat', related='patient_id.state')
+    state_dec = fields.Selection(string='État', related='patient_id.state')
 
-    end_date_dec = fields.Date(string='date fin de convention', related='patient_id.end_date')
+    end_date_dec = fields.Date(string='Date de fin de convention', related='patient_id.end_date')
 
     @api.model
     def create(self, vals):
@@ -209,7 +209,7 @@ class CashEntryLine(models.Model):
 
     currency_id = fields.Many2one(
         "res.currency",
-        string="Currency",
+        string="Devise",
         default=lambda self: self.env.company.currency_id.id,
         required=True,
     )
@@ -219,13 +219,13 @@ class CashEntryLine(models.Model):
 
     amount = fields.Float(string='Montant', compute='_compute_amount', store=True)
 
-    tax_amount = fields.Float(string='Montant taxe', compute='_compute_amount', store=True)
+    tax_amount = fields.Float(string='Montant de la taxe', compute='_compute_amount', store=True)
 
 
     rate_type = fields.Selection([
         ('Tarif Public', 'Tarif Public'),
         ('Tarif Convention ', 'Tarif Convention'),
-    ], string='Type de Tarif', default="Tarif Public")
+    ], string='Type de tarif', default="Tarif Public")
 
     tax = fields.Selection([
         ('HT', 'HT'),
@@ -233,7 +233,7 @@ class CashEntryLine(models.Model):
         ('9%', '9%'),
     ], string='Taxe', default="HT")
 
-    difference_amount = fields.Monetary(string='Difference', store=True, )
+    difference_amount = fields.Monetary(string='Différence', store=True, )
 
     doctor_id_dec = fields.Many2one('res.partner', string='Médecin', domain="[('doctor', '=', True)]",
                                     related='entry_id.doctor_id', store=True)
@@ -246,11 +246,11 @@ class CashEntryLine(models.Model):
 
     family_id_dec = fields.Many2one(related='act_id.categ_id', string='Famille', store=True)
 
-    n_bon_dec = fields.Char(related='entry_id.n_bon', string='N°Bon', store=True)
+    n_bon_dec = fields.Char(related='entry_id.n_bon', string='N° Bon', store=True)
 
-    cote_part = fields.Monetary(string='Cote Part ', readonly=False, compute='_compte_cote', store=True)
+    cote_part = fields.Monetary(string='Quote-part', readonly=False, compute='_compte_cote', store=True)
 
-    per_cpart = fields.Float('% Cote Part', )
+    per_cpart = fields.Float('% Quote-part', )
 
 
     @api.onchange('doctor_id_dec')
@@ -319,7 +319,7 @@ class CashExit(models.Model):
         ('Autre', 'Autre'),
     ], string='Motif', default='Cote part', required=True)
     currency_id = fields.Many2one('res.currency', string='Devise', default=lambda self: self.env.company.currency_id)
-    note = fields.Text(string='Notes')
+    note = fields.Text(string='Remarques')
 
     def print_bon_d(self):
         return self.env.ref('clinic.report_decaissement').report_action(self)

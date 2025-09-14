@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hospitalisation_tree" model="ir.ui.view">
+        <field name="name">clinic.hospitalisation.tree</field>
+        <field name="model">clinic.hospitalisation</field>
+        <field name="arch" type="xml">
+            <tree >
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="service_id"/>
+                <field name="bed_id"/>
+                <field name="entry_date"/>
+                <field name="stay_days"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hospitalisation_form" model="ir.ui.view">
+        <field name="name">clinic.hospitalisation.form</field>
+        <field name="model">clinic.hospitalisation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_create_nursing_plan" string="Créer plan de soins" type="object" class="oe_highlight"/>
+                    <button name="action_plan_discharge" string="Planifier sortie" type="object"/>
+                    <button name="action_discharge" string="Valider sortie" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="admission_id" readonly="1"/>
+                            <field name="patient_id"/>
+                            <field name="service_id"/>
+                            <field name="bed_id"/>
+                        </group>
+                        <group>
+                            <field name="entry_date"/>
+                            <field name="exit_date"/>
+                            <field name="stay_days"/>
+                        </group>
+                    </group>
+                    <notebook>
+         <!--               <page string="Plans de soins">
+                            <field name="nursing_plan_ids">
+                                <tree>
+                                    <field name="date"/>
+                                    <field name="nurse_id"/>
+                                </tree>
+                            </field>
+                        </page>
+-->                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hospitalisation_search" model="ir.ui.view">
+        <field name="name">clinic.hospitalisation.search</field>
+        <field name="model">clinic.hospitalisation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="service_id"/>
+              <!--  <filter string="Admis" name="admitted" domain="[('state','=','admitted')]"/>
+                <filter string="En cours" name="in_progress" domain="[('state','=','in_progress')]"/>
+                <filter string="Sortie prévue" name="pre_discharge" domain="[('state','=','pre_discharge')]"/>
+                <filter string="Sorti" name="discharged" domain="[('state','=','discharged')]"/>
+             -->  <!-- <group expand="0" string="Grouper par">
+                    <filter string="Service" context="{'group_by':'service_id'}"/>
+                    <filter string="Mois entrée" context="{'group_by':'entry_date:month'}"/>
+                </group>-->
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hospitalisation" model="ir.actions.act_window">
+        <field name="name">Dossiers de séjour</field>
+        <field name="res_model">clinic.hospitalisation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hospitalisation_search"/>
+    </record>
+
+    <record id="view_nursing_plan_tree" model="ir.ui.view">
+        <field name="name">clinic.nursing.plan.tree</field>
+        <field name="model">clinic.nursing.plan</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="date"/>
+                <field name="nurse_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_nursing_plan_form" model="ir.ui.view">
+        <field name="name">clinic.nursing.plan.form</field>
+        <field name="model">clinic.nursing.plan</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="hospitalisation_id" invisible="1"/>
+                            <field name="patient_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="nurse_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lignes de soins">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="time_slot"/>
+                                    <field name="product_id"/>
+                                    <field name="dose"/>
+                                    <field name="dose_unit"/>
+                                    <field name="done" widget="boolean_toggle"/>
+                                    <field name="done_time" attrs="{'readonly': [('done', '=', False)]}"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_nursing_plan" model="ir.actions.act_window">
+        <field name="name">Plans de soins</field>
+        <field name="res_model">clinic.nursing.plan</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>
