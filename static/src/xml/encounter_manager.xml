@@ -1,92 +1,161 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<templates id="template" xml:space="preserve">
-    <t t-name="clinic.EncounterManagerTemplate">
-        <div class="o_encounter_manager">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h2 t-if="isReceptionist">Gestion des Consultations - Réceptionniste</h2>
-                    <h2 t-if="isDoctor">Gestion des Consultations - Médecin</h2>
-                </div>
-                <button class="btn btn-sm btn-secondary o_refresh_button" t-on-click="refreshData">
-                    <i class="fa fa-refresh"/> Actualiser
-                </button>
-            </div>
-            
-            <!-- Loading indicator -->
-            <div t-if="state.isLoading" class="o_loading_indicator">
-                <i class="fa fa-spinner fa-spin"/> Chargement en cours...
-            </div>
-            
-            <!-- Error message -->
-            <div t-if="state.error" class="o_error_message alert alert-danger">
-                <i class="fa fa-exclamation-triangle"/> <t t-esc="state.error"/>
-            </div>
+<templates>
+  <t t-name="clinic.EncounterManagerTemplate">
+    <div class="o_doc_encounter">
 
-            <!-- Liste des consultations -->
-            <div t-if="!state.isLoading" class="o_encounter_list">
-                <t t-foreach="state.encounters" t-as="encounter" t-key="encounter.id">
-                    <div class="o_encounter_card" t-att-class="{ 'o_selected': encounter.id === state.selectedEncounter?.id }">
-                        <span>N° Rencontre: <t t-esc="encounter.name"/></span>
-
-                        <span>Patient: <t t-esc="encounter.patient_id[1]"/></span>
-                        <span>Rendez-vous: <t t-esc="encounter.appointment_id ? encounter.appointment_id[1] : 'Aucun'"/></span>
-                        <span>Salle: <t t-esc="encounter.room_id ? encounter.room_id[1] : 'Non assignée'"/></span>
-                        <span>Date Début: <t t-esc="encounter.start"/></span>
-                        <span>État: <t t-esc="encounter.state"/></span>
-                        <button  t-on-click="() => updateState(encounter.id, 'in_progress')">Démarrer</button>
-                        <button  t-on-click="() => updateState(encounter.id, 'done')">Terminer</button>
-                        <button t-on-click="() => selectEncounter(encounter)">Détails</button>
-                    </div>
-                </t>
-            </div>
-
-            <!-- Détails de la consultation -->
-            <t t-if="state.selectedEncounter">
-                <div class="o_encounter_details">
-                    <h3>Détails de la Consultation</h3>
-                    <t t-if="isReceptionist">
-                        <label>Type:</label>
-                        <select t-model="state.selectedEncounter.type">
-                            <option value="ambu">Ambulatoire</option>
-                            <option value="inpatient">Hospitalisé</option>
-                            <option value="emergency">Urgence</option>
-                        </select>
-                        <label>Salle:</label>
-                        <select t-model="state.selectedEncounter.room_id">
-                            <option t-foreach="state.rooms" t-as="room" t-key="room.id" t-att-value="room.id">
-                                <t t-esc="room.name"/>
-                            </option>
-                        </select>
-                        <label>Service:</label>
-                        <select t-model="state.selectedEncounter.service_id">
-                            <option t-foreach="state.services" t-as="service" t-key="service.id" t-att-value="service.id">
-                                <t t-esc="service.name"/>
-                            </option>
-                        </select>
-                        <div class="form-group">
-                            <label for="doctor">Médecin</label>
-                            <select class="form-control" t-on-change="(ev) => state.selectedEncounter.doctor_id = parseInt(ev.target.value)">
-                                <option value="">Sélectionner un médecin</option>
-                                <t t-foreach="state.doctors" t-as="doctor" t-key="doctor.id">
-                                    <option t-att-value="doctor.id" t-att-selected="doctor.id === state.selectedEncounter.doctor_id"><t t-esc="doctor.name"/></option>
-                                </t>
-                            </select>
-                        </div>
-                    </t>
-                    <t t-if="isDoctor">
-                        <label>Observations:</label>
-                        <textarea t-model="state.selectedEncounter.observations_ids"/>
-                        <label>Procédures:</label>
-                        <textarea t-model="state.selectedEncounter.procedures_ids"/>
-                        <label>Prescriptions:</label>
-                        <textarea t-model="state.selectedEncounter.prescriptions_ids"/>
-                    </t>
-                    <div class="o_encounter_actions">
-                        <button class="btn btn-primary" t-on-click="saveEncounter">Enregistrer</button>
-                        <button class="btn btn-secondary" t-on-click="closeDetails">Fermer</button>
-                    </div>
-                </div>
-            </t>
+      <!-- Error State -->
+      <t t-if="state.error">
+        <div class="alert alert-danger">
+          <strong>Error:</strong> <t t-esc="state.error"/>
         </div>
-    </t>
+      </t>
+
+      <!-- Loading State -->
+      <t t-elif="state.loading">
+        <div class="alert alert-info">
+          <i class="fa fa-spinner fa-spin"></i> Chargement...
+        </div>
+      </t>
+
+      <!-- No Encounter -->
+      <t t-elif="!state.encounterId">
+        <div class="alert alert-warning">
+          Aucune consultation en cours pour vous aujourd'hui.
+        </div>
+      </t>
+
+      <!-- Main Content -->
+      <t t-else="">
+        <!-- Patient Info -->
+        <div class="patient-card mb-3">
+          <h4>Patient: <t t-esc="state.patient.name or 'N/A'"/></h4>
+          <div class="row">
+            <div class="col-md-3">
+              <strong>Âge:</strong> <t t-esc="state.patient.age or 'N/A'"/>
+            </div>
+            <div class="col-md-3">
+              <strong>Genre:</strong> <t t-esc="state.patient.gender or 'N/A'"/>
+            </div>
+            <div class="col-md-3">
+              <strong>Téléphone:</strong> <t t-esc="state.patient.phone or 'N/A'"/>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Encounter Info -->
+        <div class="encounter-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Consultation #<t t-esc="state.encounter.name or 'N/A'"/></span>
+            <button class="btn btn-sm"
+                    t-att-class="getStatusClass(state.encounter.state)"
+                    t-on-click="toggleStatus">
+              <t t-esc="getStatusLabel(state.encounter.state)"/>
+            </button>
+          </div>
+
+          <div class="card-body">
+            <!-- Chief Complaint -->
+            <div class="form-group mb-3">
+              <label class="form-label">Motif principal</label>
+              <textarea class="form-control"
+                        rows="3"
+                        t-model="state.encounter.chief_complaint"
+                        t-on-blur="() => this.saveField('chief_complaint')"
+                        placeholder="Décrivez le motif de consultation..."/>
+            </div>
+
+            <!-- Diagnosis -->
+            <div class="form-group mb-3">
+              <label class="form-label">Diagnostic</label>
+              <textarea class="form-control"
+                        rows="3"
+                        t-model="state.encounter.diagnosis"
+                        t-on-blur="() => this.saveField('diagnosis')"
+                        placeholder="Diagnostic principal et différentiels..."/>
+            </div>
+
+            <!-- Treatment Plan -->
+            <div class="form-group mb-3">
+              <label class="form-label">Plan thérapeutique</label>
+              <textarea class="form-control"
+                        rows="3"
+                        t-model="state.encounter.treatment_plan"
+                        t-on-blur="() => this.saveField('treatment_plan')"
+                        placeholder="Plan de traitement recommandé..."/>
+            </div>
+
+            <!-- Follow Up -->
+            <div class="form-group mb-3">
+              <label class="form-label">Suivi recommandé</label>
+              <textarea class="form-control"
+                        rows="3"
+                        t-model="state.encounter.follow_up"
+                        t-on-blur="() => this.saveField('follow_up')"
+                        placeholder="Instructions de suivi..."/>
+            </div>
+
+            <!-- Observations Section -->
+            <div class="form-group mb-3">
+              <label class="form-label">Observations</label>
+              <div class="observations-list">
+                <t t-foreach="state.observations" t-as="obs" t-key="obs.id">
+                  <div class="d-flex gap-2 mb-2">
+                    <input type="text"
+                           class="form-control"
+                           t-model="obs.code"
+                           placeholder="Code LOINC"/>
+                    <input type="number"
+                           class="form-control"
+                           t-model="obs.value_float"
+                           step="0.1"
+                           placeholder="Valeur"/>
+                    <input type="text"
+                           class="form-control"
+                           t-model="obs.value_unit"
+                           placeholder="Unité"/>
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            t-on-click="() => this.removeObs(obs.id)">
+                      <i class="fa fa-times"></i>
+                    </button>
+                  </div>
+                </t>
+                <button type="button"
+                        class="btn btn-outline-primary btn-sm"
+                        t-on-click="addObs">
+                  <i class="fa fa-plus"></i> Ajouter observation
+                </button>
+              </div>
+            </div>
+
+            <!-- Prescriptions Section -->
+            <div class="form-group mb-3">
+              <label class="form-label">Prescriptions</label>
+              <div class="prescriptions-list">
+                <t t-foreach="state.prescriptions" t-as="rx" t-key="rx.id">
+                  <div class="d-flex gap-2 mb-2">
+                    <input type="text"
+                           class="form-control"
+                           t-model="rx.name"
+                           placeholder="Nom du médicament"/>
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            t-on-click="() => this.removeRx(rx.id)">
+                      <i class="fa fa-times"></i>
+                    </button>
+                  </div>
+                </t>
+                <button type="button"
+                        class="btn btn-outline-primary btn-sm"
+                        t-on-click="addRx">
+                  <i class="fa fa-plus"></i> Ajouter médicament
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </t>
+    </div>
+  </t>
 </templates>

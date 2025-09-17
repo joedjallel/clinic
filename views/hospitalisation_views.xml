@@ -45,7 +45,7 @@
                         </group>
                     </group>
                     <notebook>
-         <!--               <page string="Plans de soins">
+                       <page string="Plans de soins">
                             <field name="nursing_plan_ids">
                                 <tree>
                                     <field name="date"/>

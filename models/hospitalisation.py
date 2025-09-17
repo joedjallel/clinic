@@ -27,11 +27,8 @@ class Hospitalisation(models.Model):
         ('cancelled', 'Annulé')
     ], default='admitted', tracking=True)
 
-    # nursing_plan_ids = fields.One2many('clinic.nursing.plan', 'hospitalisation_id', string='Plans de soins')
-    # invoice_ids = fields.One2many('account.move', 'hospitalisation_id', string='Factures')
-    invoice_count = fields.Integer(compute='_compute_invoice_count')
+    nursing_plan_ids = fields.One2many('clinic.nursing.plan', 'hospitalisation_id', string='Plans de soins')
 
-    # --------------------------------------------------
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -49,11 +46,7 @@ class Hospitalisation(models.Model):
                 delta = (fields.Date.today() - rec.entry_date.date()).days + 1
             rec.stay_days = max(delta, 0)
 
-    def _compute_invoice_count(self):
-        for rec in self:
-            rec.invoice_count = len(rec.invoice_ids)
 
-    # ---------------- BUTTONS ----------------
 
     def action_plan_discharge(self):
         self.state = 'pre_discharge'
@@ -65,14 +58,7 @@ class Hospitalisation(models.Model):
             h.admission_id.bed_id.action_free_bed()
             h.state = 'discharged'
 
-    def action_view_invoices(self):
-        return {
-            'name': 'Factures séjour',
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'view_mode': 'tree,form',
-            'domain': [('hospitalisation_id', 'in', self.ids)],
-        }
+
 
     def action_create_nursing_plan(self):
         self.ensure_one()

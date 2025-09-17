@@ -1,308 +1,263 @@
 /** @odoo-module **/
 
-import { Component } from "@odoo/owl";
-import { useState, useEnv, useRef } from "@odoo/owl";
-import { registry } from "@web/core/registry";
+import { Component, useState, onWillStart } from "@odoo/owl";
 import { jsonrpc } from "@web/core/network/rpc_service";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 
-export class EncounterManager extends Component {
+export class DoctorEncounterForm extends Component {
+    static template = "clinic.EncounterManagerTemplate";
+
     setup() {
-        this.env = useEnv();
-        this.formRef = useRef("encounterForm");
-        
+        this.user = useService("user");
         this.state = useState({
-            encounters: [],
-            rooms: [],
-            services: [],
-            doctors: [],
-            selectedEncounter: null,
-            isLoading: true,
-            error: null,
-            isSaving: false
+            encounterId: null,
+            encounter: {},
+            patient: {},
+            observations: [],
+            prescriptions: [],
+            loading: true,
         });
 
-    
-        this._fetchData();
-    }
-
-  
-    get encountersByState() {
-        const grouped = {};
-        for (const encounter of this.state.encounters) {
-            const state = encounter.state || "draft";
-            if (!grouped[state]) {
-                grouped[state] = [];
-            }
-            grouped[state].push(encounter);
-        }
-        return grouped;
-    }
-
-    async _fetchData() {
-        try {
-            this.state.isLoading = true;
-            this.state.error = null;
-            
-            const result = await jsonrpc("/clinic/dashboard/data", {});
-            
-            // Validate and safely assign data to avoid XrayWrapper issues
-            if (result && typeof result === "object") {
-                // Use Object.assign to avoid XrayWrapper issues
-                this.state.encounters = this._safeArrayCopy(result.encounters);
-                this.state.rooms = this._safeArrayCopy(result.rooms);
-                this.state.services = this._safeArrayCopy(result.services);
-                this.state.doctors = this._safeArrayCopy(result.doctors);
-            } else {
-                throw new Error("Invalid response from server");
-            }
-            
-            this._validateSelectedEncounter();
-
-        } catch (error) {
-            this.state.error = error.message || "Une erreur est survenue lors du chargement des données";
-            console.error("Error fetching data:", error);
-            
-            if (this.env.services && this.env.services.notification) {
-                this.env.services.notification.add(this.state.error, {
-                    title: "Erreur de chargement",
-                    type: "danger"
-                });
-            }
-        } finally {
-            this.state.isLoading = false;
-        }
-    }
-
-    // Helper to safely copy arrays and avoid XrayWrapper issues
-    _safeArrayCopy(source) {
-        if (!Array.isArray(source)) {
-            return [];
-        }
-        return source.map(item => {
-            if (typeof item === "object" && item !== null) {
-                return Object.assign({}, item);
-            }
-            return item;
+        onWillStart(async () => {
+            await this.loadDoctorEncounter();
         });
     }
 
-    // Helper to safely copy objects
-    _safeObjectCopy(source) {
-        if (typeof source !== "object" || source === null) {
-            return {};
-        }
-        return Object.assign({}, source);
-    }
-
-    _validateSelectedEncounter() {
-        if (this.state.selectedEncounter) {
-            const stillExists = this.state.encounters.find(e => e.id === this.state.selectedEncounter.id);
-            if (stillExists) {
-                this.state.selectedEncounter = this._safeObjectCopy(stillExists);
-            } else {
-                this.state.selectedEncounter = null;
-            }
-        }
-    }
-    
-    async refreshData() {
-        await this._fetchData();
-        if (this.env.services && this.env.services.notification) {
-            this.env.services.notification.add("Données actualisées", {
-                title: "Information",
-                type: "info"
-            });
-        }
-    }
-
-    selectEncounter(encounter) {
-        if (!encounter || !encounter.id) {
-            console.warn("Invalid encounter selected");
-            return;
-        }
-        this.state.selectedEncounter = this._safeObjectCopy(encounter);
-    }
-    
-    closeDetails() {
-        this.state.selectedEncounter = null;
-    }
-
-    async updateState(encounterId, newState) {
-        if (!encounterId || !newState) {
-            console.error("Invalid parameters for state update");
-            return;
-        }
-
-        const validStates = ["draft", "scheduled", "in_progress", "completed", "cancelled"];
-        if (!validStates.includes(newState)) {
-            if (this.env.services && this.env.services.notification) {
-                this.env.services.notification.add("État invalide", {
-                    title: "Erreur",
-                    type: "danger"
-                });
-            }
-            return;
-        }
-
+    /* ----------  LOAD  ---------- */
+    async loadDoctorEncounter() {
         try {
-            const result = await jsonrpc("/clinic/encounter/update", {
-                encounter_id: encounterId,
-                values: { state: newState }
-            });
-            
-            if (result && result.success) {
-                this._updateLocalEncounter(encounterId, { state: newState });
-                
-                if (this.env.services && this.env.services.notification) {
-                    this.env.services.notification.add("État mis à jour avec succès", {
-                        title: "Succès",
-                        type: "success"
-                    });
-                }
-            } else {
-                throw new Error((result && result.error) || "Erreur lors de la mise à jour de l'état");
-            }
-        } catch (error) {
-            console.error("Error updating encounter state:", error);
-            if (this.env.services && this.env.services.notification) {
-                this.env.services.notification.add(error.message || "Impossible de mettre à jour l'état", {
-                    title: "Erreur",
-                    type: "danger"
-                });
-            }
-        }
-    }
-
-    _updateLocalEncounter(encounterId, updates) {
-        // Update in encounters list
-        const encounterIndex = this.state.encounters.findIndex(e => e.id === encounterId);
-        if (encounterIndex !== -1) {
-            // Use Object.assign to safely update
-            Object.assign(this.state.encounters[encounterIndex], updates);
-        }
-        
-        // Update selected encounter if it matches
-        if (this.state.selectedEncounter && this.state.selectedEncounter.id === encounterId) {
-            Object.assign(this.state.selectedEncounter, updates);
-        }
-    }
-
-    _validateEncounterData(encounter) {
-        const errors = [];
-        
-        if (!encounter.type) {
-            errors.push("Le type de consultation est requis");
-        }
-        
-        if (!encounter.room_id) {
-            errors.push("La salle est requise");
-        }
-        
-        if (!encounter.service_id) {
-            errors.push("Le service est requis");
-        }
-        
-        return errors;
-    }
-
-    async saveEncounter() {
-        if (!this.state.selectedEncounter) {
-            console.warn("No encounter selected for saving");
-            return;
-        }
-        
-        if (this.state.isSaving) {
-            return; // Prevent double-submission
-        }
-        
-        try {
-            this.state.isSaving = true;
-            
-            const validationErrors = this._validateEncounterData(this.state.selectedEncounter);
-            if (validationErrors.length > 0) {
-                if (this.env.services && this.env.services.notification) {
-                    this.env.services.notification.add(validationErrors.join("\\n"), {
-                        title: "Données invalides",
-                        type: "warning"
-                    });
-                }
+            // 1. Check if current user is linked to a doctor partner
+            if (!this.user.userId) {
+                this.state.loading = false;
                 return;
             }
-            
-            const values = {
-                type: this.state.selectedEncounter.type,
-                room_id: this.state.selectedEncounter.room_id,
-                service_id: this.state.selectedEncounter.service_id,
-                doctor_id: this.state.selectedEncounter.doctor_id || this.env.session.uid,
-            };
-            
-            // Safely get prescriptions if doctor and form exists
-            if (this.isDoctor && this.formRef.el) {
-                const prescriptionsEl = this.formRef.el.querySelector(".o_encounter_prescriptions textarea");
-                if (prescriptionsEl && prescriptionsEl.value && prescriptionsEl.value.trim()) {
-                    values.prescriptions = prescriptionsEl.value.trim();
-                }
+
+            const doctorId = await jsonrpc("/clinic/user/doctor_id", {});
+            if (!doctorId) {
+                console.log("No doctor found for current user");
+                this.state.loading = false;
+                return;
             }
-            
-            const result = await jsonrpc("/clinic/encounter/update", {
-                encounter_id: this.state.selectedEncounter.id,
-                values: values
+
+            const enc = await jsonrpc("/clinic/doctor/today_encounter", {
+                doctor_id: doctorId,
             });
-            
-            if (result && result.success) {
-                if (this.env.services && this.env.services.notification) {
-                    this.env.services.notification.add("Consultation mise à jour avec succès", {
-                        title: "Succès",
-                        type: "success"
-                    });
-                }
-                
-                if (result.encounter) {
-                    this._updateLocalEncounter(this.state.selectedEncounter.id, this._safeObjectCopy(result.encounter));
-                } else {
-                    await this._fetchData();
-                }
-            } else {
-                throw new Error((result && result.error) || "Erreur lors de la mise à jour");
+            if (!enc || !enc.id) {
+                console.log("No encounter found for today");
+                this.state.loading = false;
+                return;
             }
-            
+
+            this.state.encounterId = enc.id;
+
+            // 4. Load encounter data (simplified - may need to implement these endpoints)
+            // For now, let's use basic Odoo model methods
+            const encounter = await jsonrpc("/web/dataset/call_kw", {
+                model: "clinic.encounter",
+                method: "read",
+                args: [[enc.id], ["name", "state", "chief_complaint", "diagnosis", "treatment_plan", "follow_up"]],
+                kwargs: {}
+            });
+
+            const patient = await jsonrpc("/web/dataset/call_kw", {
+                model: "res.partner",
+                method: "read",
+                args: [[enc.patient_id], ["name", "age", "gender", "phone"]],
+                kwargs: {}
+            });
+
+            // Initialize with safe defaults
+            this.state.encounter = encounter && encounter[0] ? encounter[0] : {
+                name: "N/A",
+                state: "draft",
+                chief_complaint: "",
+                diagnosis: "",
+                treatment_plan: "",
+                follow_up: ""
+            };
+
+            this.state.patient = patient && patient[0] ? patient[0] : {
+                name: "Unknown Patient",
+                age: "",
+                gender: "",
+                phone: "",
+            };
+
+            // Initialize empty arrays for now
+            this.state.observations = [];
+            this.state.prescriptions = [];
+
+            this.state.loading = false;
+            console.log("Loaded encounter data:", this.state);
+
         } catch (error) {
-            console.error("Error saving encounter:", error);
-            if (this.env.services && this.env.services.notification) {
-                this.env.services.notification.add(error.message || "Impossible de sauvegarder les modifications", {
-                    title: "Erreur",
-                    type: "danger"
-                });
-            }
-        } finally {
-            this.state.isSaving = false;
+            console.error("Error loading doctor encounter:", error);
+            // Set safe defaults on error
+            this.state.encounterId = null;
+            this.state.encounter = {
+                name: "Error",
+                state: "draft",
+                chief_complaint: "",
+                diagnosis: "",
+                treatment_plan: "",
+                follow_up: ""
+            };
+            this.state.patient = {
+                name: "Error loading patient",
+                age: "",
+                gender: "",
+                phone: "",
+                allergies: ""
+            };
+            this.state.observations = [];
+            this.state.prescriptions = [];
+            this.state.loading = false;
         }
     }
 
-    getStateLabel(state) {
+    /* ----------  SAVE  ---------- */
+    async saveField(field) {
+        if (!this.state.encounterId) return;
+        try {
+            await jsonrpc("/web/dataset/call_kw", {
+                model: "clinic.encounter",
+                method: "write",
+                args: [[this.state.encounterId], { [field]: this.state.encounter[field] }],
+                kwargs: {}
+            });
+            console.log(`Saved field ${field}`);
+        } catch (error) {
+            console.error(`Error saving field ${field}:`, error);
+        }
+    }
+
+    async toggleStatus() {
+        if (!this.state.encounterId) return;
+
+        const MAP = {
+            draft: "in_progress",
+            in_progress: "done",
+            done: "done" // Prevent further changes when done
+        };
+        const currentState = this.state.encounter.state;
+        const nextState = MAP[currentState];
+
+        if (!nextState || nextState === currentState) return;
+
+        try {
+            await jsonrpc("/web/dataset/call_kw", {
+                model: "clinic.encounter",
+                method: "write",
+                args: [[this.state.encounterId], { state: nextState }],
+                kwargs: {}
+            });
+            this.state.encounter.state = nextState;
+            console.log(`Status updated to: ${nextState}`);
+        } catch (error) {
+            console.error("Error updating status:", error);
+        }
+    }
+
+    /* ----------  OBSERVATIONS  ---------- */
+    async addObs() {
+        if (!this.state.encounterId) return;
+
+        try {
+            const obs = await jsonrpc("/clinic/observation/create", {
+                encounter_id: this.state.encounterId,
+                code: "NEW",
+                value_float: 0,
+                value_unit: "",
+            });
+            this.state.observations.push(obs);
+        } catch (error) {
+            console.error("Error adding observation:", error);
+        }
+    }
+
+    async removeObs(id) {
+        try {
+            await jsonrpc("/clinic/observation/unlink", { id });
+            this.state.observations = this.state.observations.filter(o => o.id !== id);
+        } catch (error) {
+            console.error("Error removing observation:", error);
+        }
+    }
+
+    async saveObservation(obs) {
+        try {
+            await jsonrpc("/clinic/observation/update", {
+                id: obs.id,
+                vals: {
+                    code: obs.code,
+                    value_float: obs.value_float,
+                    value_unit: obs.value_unit,
+                },
+            });
+        } catch (error) {
+            console.error("Error saving observation:", error);
+        }
+    }
+
+    /* ----------  PRESCRIPTIONS  ---------- */
+    async addRx() {
+        if (!this.state.encounterId) return;
+
+        try {
+            const rx = await jsonrpc("/clinic/prescription/create", {
+                encounter_id: this.state.encounterId,
+                name: "Nouveau médicament",
+            });
+            this.state.prescriptions.push(rx);
+        } catch (error) {
+            console.error("Error adding prescription:", error);
+        }
+    }
+
+    async removeRx(id) {
+        try {
+            await jsonrpc("/clinic/prescription/unlink", { id });
+            this.state.prescriptions = this.state.prescriptions.filter(r => r.id !== id);
+        } catch (error) {
+            console.error("Error removing prescription:", error);
+        }
+    }
+
+    async savePrescription(rx) {
+        try {
+            await jsonrpc("/clinic/prescription/update", {
+                id: rx.id,
+                vals: {
+                    name: rx.name,
+                },
+            });
+        } catch (error) {
+            console.error("Error saving prescription:", error);
+        }
+    }
+
+    /* ----------  UTILITY METHODS  ---------- */
+    getStatusLabel(state) {
         const labels = {
-            "draft": "Brouillon",
-            "scheduled": "Programmé",
-            "in_progress": "En cours",
-            "completed": "Terminé",
-            "cancelled": "Annulé"
+            draft: "Brouillon",
+            in_progress: "En cours",
+            done: "Terminé",
+            cancelled: "Annulé"
         };
         return labels[state] || state;
     }
 
-    getStateBadgeClass(state) {
+    getStatusClass(state) {
         const classes = {
-            "draft": "badge-secondary",
-            "scheduled": "badge-primary",
-            "in_progress": "badge-warning",
-            "completed": "badge-success",
-            "cancelled": "badge-danger"
+            draft: "btn-secondary",
+            in_progress: "btn-warning",
+            done: "btn-success",
+            cancelled: "btn-danger"
         };
-        return classes[state] || "badge-secondary";
+        return classes[state] || "btn-secondary";
     }
 }
 
-EncounterManager.template = "clinic.EncounterManagerTemplate";
-
 // Register the component
-registry.category("actions").add("clinic.encounter_manager", EncounterManager);
+registry.category("actions").add("clinic.encounter_manager", DoctorEncounterForm);

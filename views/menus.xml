@@ -1,62 +1,105 @@
 <odoo>
-    <menuitem id="menu_clinique" name="Gestion Clinique"
-              sequence="10"/>
-    <menuitem id="menu_patients" name="Patients"
-              parent="menu_clinique"
-              action="action_partner_patient" sequence="20"/>
-    <menuitem id="menu_doctors" name="Médecins"
-              parent="menu_clinique"
-              action="action_partner_doctor" sequence="30"/>
+    <!-- Main Menu -->
+    <menuitem id="menu_clinique" name="Gestion Clinique" sequence="10"/>
 
+    <!-- ==================================== -->
+    <!-- DASHBOARDS                           -->
+    <!-- ==================================== -->
     <record id="reception_dashboard_action" model="ir.actions.client">
         <field name="name">Reception Dashboard</field>
         <field name="tag">clinic.encounter_manager</field>
         <field name="target">current</field>
+        <field name="context">{'force_encounter_id': active_id}</field>
     </record>
 
     <menuitem name="Dashboard" id="reception_dashboard_menu"
               parent="menu_clinique" sequence="0"
               action="reception_dashboard_action"/>
 
-
     <record id="action_manager_dashboard_owl" model="ir.actions.client">
         <field name="name">Tableau de bord du Manager</field>
         <field name="tag">clinic.manager_dashboard</field>
     </record>
 
-    <!-- Menu for the Dashboard -->
     <menuitem id="menu_manager_dashboard_owl"
               name="Tableau de bord"
               parent="menu_clinique"
               action="action_manager_dashboard_owl"
               sequence="2"/>
 
-    <menuitem name="Caisse" id="menu_caisse" parent="menu_clinique" sequence="40"/>
+    <!-- ==================================== -->
+    <!-- PATIENTS & PERSONNEL                 -->
+    <!-- ==================================== -->
+    <menuitem id="menu_patients_personnel" name="Patients &amp; Personnel"
+              parent="menu_clinique" sequence="20"/>
 
+    <menuitem id="menu_patients" name="Patients"
+              parent="menu_patients_personnel"
+              action="action_partner_patient" sequence="10"/>
 
-    <menuitem id="menu_cash_statements"
-              name="Relevés de Caisse" parent="menu_caisse" action="action_cash_statement"
-              sequence="60"/>
-    <menuitem id="menu_cash_entries" name="Encaissements" parent="menu_caisse" action="action_cash_entry"
-              sequence="60"/>
-    <menuitem id="menu_cash_exits" name="Décaissements" parent="menu_caisse" action="action_cash_exit" sequence="70"/>
+    <menuitem id="menu_doctors" name="Médecins"
+              parent="menu_patients_personnel"
+              action="action_partner_doctor" sequence="20"/>
 
+    <!-- ==================================== -->
+    <!-- CONSULTATIONS & RENDEZ-VOUS          -->
+    <!-- ==================================== -->
+    <menuitem id="menu_consultations" name="Consultations"
+              parent="menu_clinique" sequence="30"/>
 
-    <menuitem id="menu_acts" name="Actes Médicaux" parent="menu_clinique" action="action_act" sequence="80"/>
+    <menuitem id="menu_encounter" name="Consultation"
+              parent="menu_consultations" action="action_encounter" sequence="10"/>
 
-    <menuitem id="menu_conventions" name="Conventions"
-              parent="menu_clinique" action="action_convention" sequence="60"/>
+    <menuitem id="menu_appointment" name="Rendez-vous"
+              action="action_appointment" parent="menu_consultations" sequence="20"/>
 
+    <!-- ==================================== -->
+    <!-- ADMISSIONS & HOSPITALISATION         -->
+    <!-- ==================================== -->
+    <menuitem id="menu_admissions" name="Admissions"
+              parent="menu_clinique" sequence="40"/>
 
     <menuitem id="menu_admission" name="Admission"
-              parent="menu_clinique" action="action_admission" sequence="70"/>
+              parent="menu_admissions" action="action_admission" sequence="10"/>
 
     <menuitem id="menu_hospitalisation"
               name="Dossiers de séjour"
-              parent="menu_clinique"
+              parent="menu_admissions"
               action="action_hospitalisation"
-              sequence="78"/>
-    <menuitem name="Blocs opératoires" id="menu_bloc_operatoire" parent="menu_clinique" sequence="50"/>
+              sequence="20"/>
+
+    <!-- ==================================== -->
+    <!-- FINANCES & CAISSE                    -->
+    <!-- ==================================== -->
+    <menuitem name="Finances" id="menu_finances" parent="menu_clinique" sequence="50"/>
+
+    <menuitem name="Caisse" id="menu_caisse" parent="menu_finances" sequence="10"/>
+
+    <menuitem id="menu_cash_statements"
+              name="Relevés de Caisse" parent="menu_caisse" action="action_cash_statement"
+              sequence="10"/>
+    <menuitem id="menu_cash_entries" name="Encaissements" parent="menu_caisse" action="action_cash_entry"
+              sequence="20"/>
+    <menuitem id="menu_cash_exits" name="Décaissements" parent="menu_caisse" action="action_cash_exit" sequence="30"/>
+
+    <!-- ==================================== -->
+    <!-- ACTES & CONVENTIONS                  -->
+    <!-- ==================================== -->
+    <menuitem id="menu_actes_conventions" name="Actes &amp; Conventions"
+              parent="menu_clinique" sequence="60"/>
+
+    <menuitem id="menu_acts" name="Actes Médicaux"
+              parent="menu_actes_conventions" action="action_act" sequence="10"/>
+
+    <menuitem id="menu_conventions" name="Conventions"
+              parent="menu_actes_conventions" action="action_convention" sequence="20"/>
+
+    <!-- ==================================== -->
+    <!-- BLOCS OPERATOIRES                    -->
+    <!-- ==================================== -->
+    <menuitem name="Chirurgie" id="menu_chirurgie" parent="menu_clinique" sequence="70"/>
+
+    <menuitem name="Blocs opératoires" id="menu_bloc_operatoire" parent="menu_chirurgie" sequence="10"/>
 
     <menuitem id="menu_operating_room"
               name="Blocs opératoires"
@@ -68,32 +111,28 @@
               parent="menu_bloc_operatoire"
               action="action_operation"
               sequence="20"/>
-
     <menuitem id="menu_kpi_or"
               name="KPI Bloc opératoire"
               parent="menu_bloc_operatoire"
               action="action_kpi_or_occupation"
               sequence="30"/>
 
-    <menuitem id="menu_encounter" name="Consultation"
-              parent="menu_clinique" action="action_encounter" sequence="80"/>
+    <!-- ==================================== -->
+    <!-- INFRASTRUCTURE                       -->
+    <!-- ==================================== -->
+    <menuitem name="Infrastructure" id="menu_infrastructure" parent="menu_clinique" sequence="80"/>
 
-    <menuitem name="Infrastructure" id="menu_infrastructure" parent="menu_clinique" sequence="100"/>
-
+    <menuitem id="menu_service" name="Services"
+              parent="menu_infrastructure" action="action_service"
+              sequence="10"/>
+    <menuitem id="menu_consultation_room" name="Salles de Consultation"
+              parent="menu_infrastructure" action="action_consultation_room"
+              sequence="20"/>
     <menuitem id="menu_bed" name="Lits"
               parent="menu_infrastructure" action="action_bed"
-              sequence="10"/>
-
-    <menuitem id="menu_service" name="Service"
-              parent="menu_infrastructure" action="action_service"
-              sequence="20"/>
-
-    <menuitem id="menu_consultation_room" name="Salle de Consultations"
-              parent="menu_infrastructure" action="action_consultation_room"
-              sequence="50"/>
-
-
-    <menuitem id="menu_appointment" name="Rendez-vous"
-              action="action_appointment" parent="menu_clinique" sequence="90"/>
-
+              sequence="30"/>
+    <menuitem id="menu_bed_occupation" name="Historique Occupation des Lits"
+              parent="menu_infrastructure"
+              action="action_bed_occupation"
+              sequence="40"/>
 </odoo>

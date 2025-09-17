@@ -1,58 +1,226 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_encounter_tree" model="ir.ui.view">
-        <field name="name">clinic.encounter.tree</field>
-        <field name="model">clinic.encounter</field>
-        <field name="arch" type="xml">
-            <tree string="Consultations">
-                <field name="name"/>
-                <field name="patient_id"/>
-                <field name="service_id"/>
-                <field name="start"/>
-                <field name="state"/>
-            </tree>
-        </field>
-    </record>
-
     <record id="view_encounter_form" model="ir.ui.view">
         <field name="name">clinic.encounter.form</field>
         <field name="model">clinic.encounter</field>
         <field name="arch" type="xml">
             <form string="Consultation">
-                <!--       <header>
-                         <button name="action_start" type="object" string="Commencer"/>
-                         <button name="action_done" type="object" string="Terminer"/>
-                         <field name="state" widget="statusbar"/>
-                       </header>
-                -->
+                <header>
+                    <button name="action_start" type="object" string="Commencer"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            icon="fa-play"
+                            confirm="Êtes-vous prêt à commencer cette consultation ?"/>
+
+                    <button name="action_done" type="object" string="Terminer"
+                            class="btn-success"
+                            invisible="state != 'in_progress'"
+                            icon="fa-check"
+                            confirm="Êtes-vous sûr de vouloir terminer cette consultation ?"/>
+
+                    <button name="action_cancel" type="object" string="Annuler"
+                            class="btn-danger"
+                            invisible="state in ['done', 'cancelled']"
+                            confirm="Êtes-vous sûr de vouloir annuler cette consultation ?"/>
+
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_progress,done"
+                           statusbar_colors='{"cancelled":"red","done":"blue"}'/>
+                </header>
+
                 <sheet>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not is_overdue">
+                        <i class="fa fa-clock-o"/>
+                        <strong>Attention :</strong>
+                        Cette consultation dépasse la durée prévue !
+                    </div>
+
+                    <div class="alert alert-info" role="alert"
+                         invisible="not appointment_id">
+                        <i class="fa fa-calendar"/>
+                        <strong>Rendez-vous associé :</strong>
+                        <field name="appointment_id" readonly="1"/>
+                    </div>
+
                     <group>
-                        <group>
+                        <group string="Informations générales">
                             <field name="name" readonly="1"/>
-                            <field name="patient_id"/>
-                            <field name="doctor_id"/>
-                            <field name="room_id"/>
-                            <field name="service_id"/>
-                            <field name="start"/>
-                            <field name="end"/>
+                            <field name="patient_id"
+                                   options="{'no_create_edit': True}"
+                                   context="{'default_patient': True}"/>
+                            <field name="doctor_id"
+                                   options="{'no_create_edit': True}"
+                                   context="{'default_doctor': True}"/>
+                            <field name="type" widget="radio" options="{'horizontal': true}"/>
                         </group>
-                        <group>
-                            <field name="type"/>
+
+                        <group string="Organisation">
+                            <field name="service_id"
+                                   options="{'no_create_edit': True}"/>
+                            <field name="room_id"
+                                   domain="[('active', '=', True)]"
+                                   options="{'no_create_edit': True}"/>
+                            <field name="admission_id"
+                                   invisible="type != 'inpatient'"
+                                   readonly="type != 'inpatient'"/>
                         </group>
                     </group>
+
+                    <group string="Planification">
+                        <group>
+                            <field name="start" widget="datetime"/>
+                            <field name="end" widget="datetime"
+                                   readonly="state in ['draft']"/>
+                            <field name="duration" widget="float_time" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="planned_duration" widget="float_time" readonly="1"/>
+                            <field name="is_overdue" readonly="1"/>
+                            <field name="can_start" readonly="1" invisible="1"/>
+                            <field name="can_finish" readonly="1" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Notebook avec les onglets -->
                     <notebook>
-                        <page string="Observations">
-                            <field name="observations_ids"/>
+                        <!-- Onglet Consultation -->
+                        <page string="Consultation" name="consultation">
+                            <group>
+                                <field name="chief_complaint"
+                                       placeholder="Décrivez le motif principal de la consultation..."
+                                       nolabel="1"/>
+                            </group>
+
+                            <group string="Diagnostic et Traitement">
+                                <field name="diagnosis"
+                                       placeholder="Diagnostic principal et différentiels..."
+                                       nolabel="1"/>
+                                <field name="treatment_plan"
+                                       placeholder="Plan thérapeutique recommandé..."
+                                       nolabel="1"/>
+                                <field name="follow_up"
+                                       placeholder="Instructions de suivi pour le patient..."
+                                       nolabel="1"/>
+                            </group>
                         </page>
 
-                        <page string="Prescriptions">
-                            <field name="prescriptions_ids"/>
+                <!--        &lt;!&ndash; Onglet Signes vitaux &ndash;&gt;
+                        <page string="Signes vitaux" name="vital_signs">
+                            <field name="vital_signs_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="datetime" widget="datetime"/>
+                                    <field name="code"/>
+                                    <field name="value_float"/>
+                                    <field name="value_unit"/>
+                                    <field name="is_abnormal" widget="boolean_toggle"/>
+                                    <field name="performer_id"/>
+                                </tree>
+                            </field>
+                        </page>
+-->
+                        <!-- Onglet Observations -->
+                        <page string="Observations" name="observations">
+                            <field name="observations_ids" nolabel="1"
+                                   context="{'default_encounter_id': active_id}">
+                                <tree editable="bottom" decoration-danger="is_abnormal">
+                                    <field name="datetime" widget="datetime"/>
+                                    <field name="code" string="Code LOINC"/>
+                                    <field name="value_float" string="Valeur"/>
+                                    <field name="value_unit" string="Unité"/>
+                                    <field name="value_str" string="Texte"/>
+                                    <field name="is_abnormal" widget="boolean_toggle"/>
+                                    <field name="performer_id"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="datetime" widget="datetime"/>
+                                        <field name="code"/>
+                                        <field name="performer_id"/>
+                                        <field name="is_abnormal"/>
+                                    </group>
+                                    <group>
+                                        <field name="value_float"/>
+                                        <field name="value_unit"/>
+                                        <field name="value_str"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+
+                        <!-- Onglet Prescriptions -->
+                        <page string="Prescriptions" name="prescriptions">
+                            <field name="prescriptions_ids" nolabel="1"
+                                   context="{'default_encounter_id': active_id}">
+                                <tree>
+                                    <field name="name"/>
+                                </tree>
+
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
+
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
+    <record id="view_encounter_tree" model="ir.ui.view">
+        <field name="name">clinic.encounter.tree</field>
+        <field name="model">clinic.encounter</field>
+        <field name="arch" type="xml">
+            <tree string="Consultations"
+                  decoration-success="state == 'done'"
+                  decoration-warning="state == 'in_progress'"
+                  decoration-danger="state == 'cancelled'"
+                  decoration-bf="is_overdue">
+
+                <field name="can_start" invisible="0"/>
+                <field name="can_finish" invisible="0"/>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="doctor_id"/>
+                <field name="service_id" optional="show"/>
+                <field name="room_id" optional="show"/>
+                <field name="type" widget="badge"/>
+                <field name="start" widget="datetime"/>
+                <field name="end" widget="datetime" optional="show"/>
+                <field name="duration" widget="float_time" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="is_overdue" invisible="1"/>
+                <field name="observations_count" string="Obs." optional="show"/>
+                <field name="prescriptions_count" string="Ord." optional="show"/>
+
+                <!-- Actions rapides -->
+                <button name="action_start" type="object"
+                        string="Commencer"
+                        icon="fa-play"
+                        invisible="state != 'draft' or not can_start"
+                        confirm="Êtes-vous prêt à commencer cette consultation ?"/>
+
+                <button name="action_done" type="object"
+                        string="Terminer"
+                        icon="fa-check"
+                        invisible="state != 'in_progress' or not can_finish"
+                        confirm="Êtes-vous sûr de vouloir terminer cette consultation ?"/>
+
+                <button name="action_cancel" type="object"
+                        string="Annuler"
+                        icon="fa-times"
+                        invisible="state in ['done', 'cancelled']"
+                        confirm="Êtes-vous sûr de vouloir annuler cette consultation ?"/>
+            </tree>
+        </field>
+    </record>
+
 
     <record id="action_encounter" model="ir.actions.act_window">
         <field name="name">Consultations</field>

@@ -51,7 +51,7 @@ Caractéristiques Techniques:
         'views/hc_base_views.xml',
         'views/hospitalisation_views.xml',
         'views/operating_room_views.xml',
-        # 'views/prescription_views.xml',
+        'views/prescription_views.xml',
         'views/encounter_views.xml',
         'views/menus.xml',
         'reports/bon.xml',

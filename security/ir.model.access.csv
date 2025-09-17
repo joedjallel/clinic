@@ -20,6 +20,7 @@ access_bed_occupation,clinic.bed.occupation,model_clinic_bed_occupation,clinic.g
 access_consultation_room,clinic.consultation.room,model_clinic_consultation_room,group_caisse_admin,1,1,1,1
 access_encounter,clinic.encounter.room,model_clinic_encounter,group_caisse_admin,1,1,1,1
 access_clinic_prescription_admin,access_clinic_prescription_admin,model_clinic_prescription,group_caisse_admin,1,1,1,1
+access_clinic_medication_line,medication line,model_clinic_medication_line,group_caisse_admin,1,1,1,1
 access_clinic_observation_admin,prescription_admin,model_clinic_observation,group_caisse_admin,1,1,1,1
 access_clinic_operating_room,poperating_room_admin,model_clinic_operating_room,group_caisse_admin,1,1,1,1
 access_clinic_operation,operation ,model_clinic_operation,group_caisse_admin,1,1,1,1

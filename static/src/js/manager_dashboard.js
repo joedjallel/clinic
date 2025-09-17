@@ -289,7 +289,7 @@ class ManagerDashboard extends Component {
                     data: {
                         labels: this.state.cash_statement_data.map(d => d.date),
                         datasets: [{
-                            label: _t('Solde'),
+                            label: _t('Encaissements'),
                             data: this.state.cash_statement_data.map(d => d.balance),
                             fill: false,
                             borderColor: 'rgba(75, 192, 192, 1)',
@@ -301,7 +301,7 @@ class ManagerDashboard extends Component {
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         aspectRatio: 2,
                         animation: {
                             duration: 0

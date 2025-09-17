@@ -137,6 +137,36 @@ class CashEntry(models.Model):
 
     end_date_dec = fields.Date(string='Date de fin de convention', related='patient_id.end_date')
 
+    invoice_id = fields.Many2one('account.move', string='Facture', readonly=True, copy=False)
+
+    def action_create_invoice(self):
+        self.ensure_one()
+        if self.invoice_id:
+            raise UserError(_("Facture déjà créée."))
+
+        invoice_lines = []
+        for line in self.acts_ids:
+            invoice_lines.append((0, 0, {
+                'product_id': line.act_id.id,
+                'quantity': 1,
+                'price_unit': line.amount + line.tax_amount,
+                'tax_ids': [(6, 0, line.act_id.taxes_id.ids)],
+            }))
+
+        #  Création écriture
+        move = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.patient_id.id,
+            'invoice_date': self.date,
+            'journal_id': self.env['account.journal'].search(
+                [('type', '=', 'sale'), ('company_id', '=', self.env.company.id)], limit=1).id,
+            'invoice_line_ids': invoice_lines,
+            # 'cash_entry_id': self.id,  # lien retour
+        })
+        # move.action_post()  # comptabilise
+        self.invoice_id = move
+        return move
+
     @api.model
     def create(self, vals):
         if not vals.get('n_bon'):
@@ -314,10 +344,10 @@ class CashExit(models.Model):
     motif = fields.Selection([
         ('Remboursement', "Remboursement"),
         ('Décaissement', "Décaissement"),
-        ('Cote part', 'Cote part'),
+        ('Quote-part', 'Quote-part'),
         ('Achats', "Achats"),
         ('Autre', 'Autre'),
-    ], string='Motif', default='Cote part', required=True)
+    ], string='Motif',  required=True)
     currency_id = fields.Many2one('res.currency', string='Devise', default=lambda self: self.env.company.currency_id)
     note = fields.Text(string='Remarques')
 

@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+
 class Partner(models.Model):
     _inherit = 'res.partner'
     _description = 'Personne'
@@ -18,10 +19,11 @@ class Partner(models.Model):
             else:
                 rec.age = "No Date Of Birth!!"
 
-
     patient = fields.Boolean(string='Est patient', default=False, help="Indique si la personne est un patient")
     doctor = fields.Boolean(string='Est médecin', default=False, help="Indique si la personne est un médecin")
-    patient_sequance = fields.Char(string='Identifiant', copy=False, readonly=True, help="Identifiant unique pour les patients ou médecins")
+    patient_sequance = fields.Char(string='Identifiant', copy=False, readonly=True,
+                                   help="Identifiant unique pour les patients ou médecins")
+    gender = fields.Selection([("male", "Homme"), ("female", "Femme"), ], string="Sexe")
 
     maiden_name = fields.Char(string='Nom de jeune fille', store=True)
     date_of_birth = fields.Date(string="Date de naissance")
@@ -37,7 +39,6 @@ class Partner(models.Model):
         ('Veuf(ve)', 'Veuf(ve)')], string='Situation Familiale', )
     Conjoint = fields.Char(string='Conjoint', required=False, )
 
-
     convention_id = fields.Many2one('clinic.convention', string='Convention', help="Convention associée au patient")
     end_date = fields.Date(string='Date de fin de convention', help="Date de fin de validité de la convention")
     state = fields.Selection([
@@ -45,20 +46,44 @@ class Partner(models.Model):
         ('inactive', 'Inactive'),
     ], string='État Convention', default='active', help="État de la convention ou du profil")
 
-    total_rest = fields.Monetary(string='Reste à payer', compute='_compute_total_rest', store=True, help="Montant total restant à payer pour le patient")
+    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
 
+    total_rest = fields.Monetary(string='Reste à payer', compute='_compute_total_rest', store=True,
+                                 help="Montant total restant à payer pour le patient")
 
     speciality = fields.Char(string='Spécialité', store=True)
-    percentage_cote_part = fields.Float(string='% Cote part', default=0.0, help="Pourcentage de cote part pour les médecins")
-    total_cote_part = fields.Monetary(string='Total cote part', compute='_compute_cote', store=True, help="Total des cotes parts dues au médecin")
-    total_cote_recue = fields.Monetary(string='Cote part reçue', compute='_compute_cote', store=True, help="Total des cotes parts reçues")
-    total_cote_rest = fields.Monetary(string='Cote part restante', compute='_compute_cote', store=True, help="Cote part restante à payer au médecin")
-
+    percentage_cote_part = fields.Float(string='% Cote part', default=0.0,
+                                        help="Pourcentage de cote part pour les médecins")
+    total_cote_part = fields.Monetary(string='Total cote part', compute='_compute_cote', store=True,
+                                      help="Total des cotes parts dues au médecin")
+    total_cote_recue = fields.Monetary(string='Cote part reçue', compute='_compute_cote', store=True,
+                                       help="Total des cotes parts reçues")
+    total_cote_rest = fields.Monetary(string='Cote part restante', compute='_compute_cote', store=True,
+                                      help="Cote part restante à payer au médecin")
 
     transactions_cash = fields.One2many('clinic.cash_entry.line', 'doctor_id_dec', string='Transactions cote part')
     received_cash = fields.One2many('clinic.cash_exit', 'partner_id', string='Décaissements reçus')
     transactions_cash_patient = fields.One2many('clinic.cash_entry', 'patient_id', string='Encaissements patient')
     medical_history_ids = fields.One2many('clinic.medical_history', 'patient_id', string='Antécédent Médical')
+
+    @api.model
+    def create(self, vals):
+        print(vals.get('patient'))
+        if vals.get('patient'):
+            ps = self.env['ir.sequence'].next_by_code('clinic.patient')
+            print(ps)
+            if ps:
+                vals.update({
+                    'patient_sequance': ps,
+                })
+        elif vals.get('doctor'):
+            ds = self.env['ir.sequence'].next_by_code('clinic.doctor')
+            if ds:
+                vals.update({
+                    'patient_sequance': ds,
+                })
+        result = super(Partner, self).create(vals)
+        return result
 
     @api.constrains('patient', 'doctor')
     def _check_role_exclusivity(self):
@@ -95,5 +120,6 @@ class Partner(models.Model):
                 record.total_cote_rest = 0.0
 
     _sql_constraints = [
-        ('patient_sequance_unique', 'UNIQUE(patient_sequance, company_id)', 'L\'identifiant doit être unique par compagnie !'),
+        ('patient_sequance_unique', 'UNIQUE(patient_sequance, company_id)',
+         'L\'identifiant doit être unique par compagnie !'),
     ]

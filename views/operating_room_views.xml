@@ -172,30 +172,84 @@
                       default_group_by="room_id"
                       zoomKey="ctrlKey"
                       event_open_popup="true"
-                      colors="#ffffff:state=='draft';#2196F3:state=='scheduled';#FF9800:state=='in_progress';#4CAF50:state=='done';#F44336:state=='cancel'">
+                      colors="#F5F5F5:state=='draft';#2196F3:state=='scheduled';#FF9800:state=='in_progress';#4CAF50:state=='done';#F44336:state=='cancel'">
                 <field name="name"/>
                 <field name="patient_id"/>
                 <field name="surgeon_id"/>
+                <field name="intervention_id"/>
                 <field name="state"/>
+                <field name="room_id"/>
+                <templates>
+                    <t t-name="timeline-item">
+                        <div class="o_timeline_item" t-att-data-state="record.state.raw_value">
+                            <div class="">
+                                <div class="font-weight-bold">
+                                    <t t-esc="record.name"/>
+                                </div>
+                                 <div>Intervention:
+                                    <t t-esc="record.intervention_id"/>
+                                </div>
+                                <div>
+                                    Chirurgien:
+                                    <t t-esc="record.surgeon_id"/>
+                                </div>
+                                <div>
+                                  Patient:
+                                    <span name="patient_id">
+                                        <t t-esc="record.patient_id"/>
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </t>
+                    <t t-name="timeline-popup">
+                        <div class="o_operation_popup">
+                            <h4>
+                                <t t-esc="record.name.value"/>
+                            </h4>
+                            <div class="popup_details">
+                                <div>
+                                    <strong>Patient:</strong>
+                                    <t t-esc="record.patient_id.value"/>
+                                </div>
+                                <div>
+                                    <strong>Chirurgien:</strong>
+                                    <t t-esc="record.surgeon_id.value"/>
+                                </div>
+                                <div>
+                                    <strong>Intervention:</strong>
+                                    <t t-esc="record.intervention_id.value"/>
+                                </div>
+                                <div>
+                                    <strong>Salle:</strong>
+                                    <t t-esc="record.room_id.value or 'Non assignée'"/>
+                                </div>
+                                <div>
+                                    <strong>Statut:</strong>
+                                    <span t-att-class="'o_state_badge o_state_' + record.state.raw_value">
+                                        <t t-esc="record.state.value"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
             </timeline>
         </field>
     </record>
-
-
-   <record id="action_operation" model="ir.actions.act_window">
-    <field name="name">Interventions</field>
-    <field name="res_model">clinic.operation</field>
-    <field name="view_mode">timeline,calendar,tree,form,kanban</field>
-    <field name="view_ids" eval="[(5, 0, 0),
+    <record id="action_operation" model="ir.actions.act_window">
+        <field name="name">Interventions</field>
+        <field name="res_model">clinic.operation</field>
+        <field name="view_mode">timeline,calendar,tree,form,kanban</field>
+        <field name="view_ids" eval="[(5, 0, 0),
         (0, 0, {'view_mode': 'timeline', 'view_id': ref('view_operation_timeline')}),
         (0, 0, {'view_mode': 'calendar', 'view_id': ref('view_operation_calendar')}),
         (0, 0, {'view_mode': 'tree', 'view_id': ref('view_operation_tree')}),
         (0, 0, {'view_mode': 'form', 'view_id': ref('view_operation_form')}),
         (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_operation_kanban')}),
     ]"/>
-</record>
-
-
+    </record>
 
 
     <!-- views/kpi_or_views.xml -->

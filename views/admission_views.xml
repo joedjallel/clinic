@@ -21,8 +21,8 @@
             <form string="Admission">
                 <header>
                     <button name="action_confirm_admission" type="object" string="Admettre" class="oe_highlight"/>
-                    <!--                    <button name="action_discharge" type="object" string="Sortir"/>-->
-                    <field name="state" widget="statusbar"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pre_admit,admitted,discharged"
+                           decoration-success="state=='admitted'" decoration-danger="state=='discharged'"/>
                 </header>
                 <sheet>
                     <group>
@@ -41,7 +41,14 @@
                     </group>
                     <notebook>
                         <page string="Transferts">
-                            <field name="moves_ids"/>
+                            <field name="moves_ids">
+                                <tree>
+                                    <field name="datetime"/>
+                                    <field name="from_bed_id"/>
+                                    <field name="to_bed_id"/>
+                                    <field name="reason"/>
+                                </tree>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

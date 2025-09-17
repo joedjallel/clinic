@@ -132,7 +132,8 @@
             <form string="Encaissement">
                 <header>
                     <button name="print_bon" string="Imprimer" type="object" class="btn-primary" target="_blank"/>
-
+                    <button name="action_create_invoice" string="Générer facture"
+                            type="object" class="oe_highlight"/>
                 </header>
                 <sheet>
 
@@ -181,6 +182,7 @@
                             <!--                            <field name="supplement"/>-->
                             <field name="rest"/>
                             <field name="left_to_pay"/>
+                            <field name="invoice_id"/>
 
                         </group>
                     </group>

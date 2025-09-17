@@ -7,28 +7,32 @@
             <field name="model">clinic.prescription</field>
             <field name="arch" type="xml">
                 <form string="Prescription">
-                    <header>
-                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
-                    </header>
+
                     <sheet>
                         <div class="oe_title">
                             <h1>
                                 <field name="name" readonly="1"/>
                             </h1>
                         </div>
-                        <group>
                             <group>
                                 <field name="encounter_id"/>
                                 <field name="patient_id"/>
-                                <field name="doctor_id"/>
+                                <field name="physician_id"/>
                             </group>
-                            <group>
-                                <field name="date"/>
-                            </group>
-                        </group>
+
                         <notebook>
-                            <page string="Prescription">
-                                <field name="description" placeholder="Détails de la prescription..."/>
+                            <page string="Médicaments">
+                                 <field name="lines_ids" nolabel="1"
+                                   context="{'default_encounter_id': active_id}">
+                                <tree>
+                                    <field name="product_id"/>
+                                    <field name="dose"/>
+                                    <field name="dose_unit"/>
+                                    <field name="frequency"/>
+                                    <field name="duration_days"/>
+                                </tree>
+
+                            </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -48,9 +52,8 @@
                 <tree string="Prescriptions">
                     <field name="name"/>
                     <field name="patient_id"/>
-                    <field name="doctor_id"/>
-                    <field name="date"/>
-                    <field name="state"/>
+                    <field name="physician_id"/>
+                    <field name="datetime"/>
                 </tree>
             </field>
         </record>
@@ -63,14 +66,10 @@
                 <search string="Rechercher des prescriptions">
                     <field name="name"/>
                     <field name="patient_id"/>
-                    <field name="doctor_id"/>
-                    <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
-                    <filter string="Validée" name="validated" domain="[('state', '=', 'validated')]"/>
-                    <filter string="Délivrée" name="delivered" domain="[('state', '=', 'delivered')]"/>
+                    <field name="physician_id"/>
                     <group expand="0" string="Group By">
                         <filter string="Patient" name="patient" domain="[]" context="{'group_by': 'patient_id'}"/>
-                        <filter string="Médecin" name="doctor" domain="[]" context="{'group_by': 'doctor_id'}"/>
-                        <filter string="État" name="state" domain="[]" context="{'group_by': 'state'}"/>
+                        <filter string="Médecin" name="doctor" domain="[]" context="{'group_by': 'physician_id'}"/>
                     </group>
                 </search>
             </field>
@@ -84,16 +83,11 @@
             <field name="search_view_id" ref="view_clinic_prescription_search"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                    Créer une nouvelle prescription
+                    Créer une nouvelle Ordonnance
                 </p>
             </field>
         </record>
 
-        <!-- Menu Item -->
-        <menuitem id="menu_clinic_prescription"
-                  name="Prescriptions"
-                  parent="menu_clinic_root"
-                  action="action_clinic_prescription"
-                  sequence="50"/>
+
     </data>
 </odoo>

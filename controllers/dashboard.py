@@ -10,7 +10,6 @@ _logger = logging.getLogger(__name__)
 class DashboardController(http.Controller):
     @http.route('/manager/dashboard/data', type='json', auth='user')
     def get_dashboard_data(self):
-        print("My route is working")
         """Fetch data for the manager dashboard with error handling."""
         try:
             today = datetime.today().date()
@@ -81,7 +80,7 @@ class DashboardController(http.Controller):
                     [('date', '>=', week_ago)],
                     order='date asc'
                 )
-                cash_statement_data = [{'date': str(st.date), 'balance': st.balance} for st in cash_statements]
+                cash_statement_data = [{'date': str(st.date), 'balance': st.total_cash_entry} for st in cash_statements]
 
             # Revenue by service - commented out as it was causing issues
             revenue_by_service_data = []

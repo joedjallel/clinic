@@ -1,69 +1,43 @@
 # -*- coding: utf-8 -*-
+from datetime import date
+
 from odoo import http, fields
-from odoo.http import request
+from odoo.http import request, _logger
 import json
 
 
 class ClinicController(http.Controller):
-    @http.route('/clinic/dashboard/data', type='json', auth='user')
-    def get_dashboard_data(self, **kw):
-        """API endpoint to get dashboard data for the encounter manager"""
-        # Get encounters
-        encounters = request.env['clinic.encounter'].search_read(
-            [], 
-            ['name', 'patient_id', 'appointment_id', 'service_id', 'room_id', 'start', 'end', 'type', 'state', 'doctor_id'],
-            order='start desc'
-        )
-        
-        # Get rooms
-        rooms = request.env['clinic.consultation.room'].search_read(
-            [], 
-            ['name', 'service_id']
-        )
-        
-        # Get services
-        services = request.env['clinic.service'].search_read(
-            [], 
-            ['name']
-        )
-        
-        # Get doctors
-        doctors = request.env['res.partner'].search_read(
-            [('doctor', '=', True)], 
-            ['id', 'name']
-        )
-        
-        return {
-            'encounters': encounters,
-            'rooms': rooms,
-            'services': services,
-            'doctors': doctors
-        }
-    
-    @http.route('/clinic/encounter/update', type='json', auth='user')
-    def update_encounter(self, encounter_id, values, **kw):
-        """API endpoint to update an encounter"""
-        encounter = request.env['clinic.encounter'].browse(int(encounter_id))
-        if not encounter.exists():
-            return {'success': False, 'error': 'Encounter not found'}
-        
-        try:
-            # Handle prescriptions separately if provided
-            prescriptions = values.pop('prescriptions', None)
-            if prescriptions is not None:
-                # Create a prescription record if not empty
-                if prescriptions.strip():
-                    request.env['clinic.prescription'].create({
-                        'encounter_id': encounter.id,
-                        'description': prescriptions,
-                        'date': fields.Datetime.now(),
-                    })
-            
-            # Update the encounter with remaining values
-            if values:
-                encounter.write(values)
-                
-            return {'success': True}
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
 
+    @http.route('/clinic/user/doctor_id', type='json', auth='user')
+    def user_doctor_id(self):
+        """Return partner_id of current user if he is a doctor else None."""
+        user = request.env.user
+        doctor = request.env['res.partner'].sudo().search([
+            ('user_ids', 'in', [user.id]),
+            ('doctor', '=', True)
+        ], limit=1)
+        return doctor.id if doctor else None
+
+    @http.route('/clinic/doctor/today_encounter', type='json', auth='user')
+    def doctor_today_encounter(self, doctor_id):
+        print(doctor_id)
+        today_start = date.today()
+        enc = request.env['clinic.encounter'].sudo().search([
+            ('doctor_id', '=', int(doctor_id)),
+            # ('start', '>=', fields.Datetime.to_datetime(today_start)),
+            # ('state', 'in', ['draft', 'in_progress']),
+        ], limit=1)
+        print(enc)
+        return {'id': enc.id, 'patient_id': enc.patient_id.id} if enc else None
+
+
+    @http.route('/clinic/patient/data', type='json', auth='user')
+    def patient_data(self, patient_id):
+        print(patient_id)
+        pat = request.env['res.partner'].sudo().browse(int(patient_id))
+        return {
+            'name': pat.name,
+            'age': pat.age or '',
+            'gender': pat.gender or '',
+            'phone': pat.phone or '',
+        }

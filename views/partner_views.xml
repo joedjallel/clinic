@@ -7,15 +7,17 @@
                 <sheet>
                     <group>
                         <h2 class="mt0">
-                            <field name="patient_sequance" readonly="1"/>
-
+                            <field name="patient_sequance"/>
                         </h2>
 
                     </group>
                     <group string="Informations Générales">
                         <group>
+                            <field name="patient" invisible="1"/>
+                            <field name="doctor" invisible="1"/>
                             <field name="name"/>
-                            <field name="maiden_name"/>
+                            <field name="gender"/>
+                            <field name="maiden_name" invisible="gender !='female' "/>
                             <field name="date_of_birth"/>
                             <field name="age"/>
                             <field name="place_of_birth"/>
@@ -113,6 +115,8 @@
                             <field name="phone" string="Téléphone"/>
                             <field name="email" string="Email"/>
                             <field name="street" string="Adresse"/>
+                            <field name="user_ids" widget="many2many_tags" placeholder="Assign users..."/>
+
                         </group>
                         <group string="Détails Financiers">
                             <field name="percentage_cote_part"/>

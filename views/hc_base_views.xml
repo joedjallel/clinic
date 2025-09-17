@@ -1,85 +1,106 @@
 <odoo>
-  <record id="view_bed_kanban" model="ir.ui.view">
-    <field name="name">clinic.bed.kanban</field>
-    <field name="model">clinic.bed</field>
-    <field name="arch" type="xml">
-      <kanban >
-        <field name="name"/>
-        <field name="state"/>
-        <field name="service_id"/>
-        <templates>
-          <t t-name="kanban-box">
-            <div class="oe_kanban_card oe_kanban_global_click">
-              <div class="o_kanban_record_title">
-                <strong><field name="name"/></strong>
-              </div>
-              <div class="o_kanban_record_body">
-                <span t-if="record.state.raw_value == 'free'" class="badge bg-success">Libre</span>
-                <span t-if="record.state.raw_value == 'occupied'" class="badge bg-danger">Occupé</span>
-                <span t-if="record.state.raw_value == 'maintenance'" class="badge bg-warning">Maintenance</span>
-              </div>
-            </div>
-          </t>
-        </templates>
-      </kanban>
-    </field>
-  </record>
+    <record id="view_bed_kanban" model="ir.ui.view">
+        <field name="name">clinic.bed.kanban</field>
+        <field name="model">clinic.bed</field>
+        <field name="arch" type="xml">
+            <kanban >
+                <field name="name"/>
+                <field name="gender_policy"/>
+                <field name="state"/>
+                <field name="service_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_title">
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                                <field name="gender_policy" widget="badge"
+                                       decoration-info="gender_policy == 'male'"
+                                       decoration-danger="gender_policy == 'female'"/>
 
-  <record id="action_bed" model="ir.actions.act_window">
-    <field name="name">Lits</field>
-    <field name="res_model">clinic.bed</field>
-    <field name="view_mode">kanban,tree,form</field>
-  </record>
-  <record id="action_service" model="ir.actions.act_window">
-    <field name="name">Service</field>
-    <field name="res_model">clinic.service</field>
-    <field name="view_mode">tree,form</field>
-  </record>
-  <record id="action_consultation_room" model="ir.actions.act_window">
-    <field name="name">Salle de Consultations</field>
-    <field name="res_model">clinic.consultation.room</field>
-    <field name="view_mode">tree,form</field>
-  </record>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>
+                                    <strong>Service:</strong>
+                                    <field name="service_id"/>
+                                </div>
+                                <div>
+                                    <strong>Étage:</strong>
+                                    <field name="floor"/>
+                                </div>
+                                <div>
+                                    <strong>Chambre:</strong>
+                                    <field name="room"/>
+                                </div>
 
+                                <span t-if="record.state.raw_value == 'free'" class="badge bg-success">Libre</span>
+                                <span t-if="record.state.raw_value == 'occupied'" class="badge bg-danger">Occupé</span>
+                                <span t-if="record.state.raw_value == 'maintenance'" class="badge bg-warning">
+                                    Maintenance
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
 
+    <record id="action_bed" model="ir.actions.act_window">
+        <field name="name">Lits</field>
+        <field name="res_model">clinic.bed</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+    <record id="action_service" model="ir.actions.act_window">
+        <field name="name">Service</field>
+        <field name="res_model">clinic.service</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_consultation_room" model="ir.actions.act_window">
+        <field name="name">Salle de Consultations</field>
+        <field name="res_model">clinic.consultation.room</field>
+        <field name="view_mode">tree,form</field>
+    </record>
 
-<!--
-  <record id="view_prescription_tree" model="ir.ui.view">
-    <field name="name">clinic.prescription.tree</field>
-    <field name="model">clinic.prescription</field>
-    <field name="arch" type="xml">
-      <tree string="Ordonnances">
-        <field name="name"/>
-        <field name="patient_id"/>
-        <field name="physician_id"/>
-        <field name="datetime"/>
-      </tree>
-    </field>
-  </record>
+    <record id="view_bed_occupation_tree" model="ir.ui.view">
+        <field name="name">clinic.bed.occupation.tree</field>
+        <field name="model">clinic.bed.occupation</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="bed_id"/>
+                <field name="patient_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="duration_days"/>
+            </tree>
+        </field>
+    </record>
 
-  <record id="view_prescription_form" model="ir.ui.view">
-    <field name="name">clinic.prescription.form</field>
-    <field name="model">clinic.prescription</field>
-    <field name="arch" type="xml">
-      <form string="Ordonnance">
-        <sheet>
-          <group>
-            <field name="name" readonly="1"/>
-            <field name="patient_id"/>
-&lt;!&ndash;            <field name="physician_id"/>&ndash;&gt;
-            <field name="datetime"/>
-          </group>
-          <field name="lines_ids"/>
-        </sheet>
-      </form>
-    </field>
-  </record>
+    <record id="view_bed_occupation_search" model="ir.ui.view">
+        <field name="name">clinic.bed.occupation.search</field>
+        <field name="model">clinic.bed.occupation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/>
+                <field name="bed_id"/>
+                <separator/>
 
-  <record id="action_prescription" model="ir.actions.act_window">
-    <field name="name">Ordonnances</field>
-    <field name="res_model">clinic.prescription</field>
-    <field name="view_mode">tree,form,kanban</field>
-  </record>
--->
+                <!--                <filter string="Ce mois" name="this_month"
+                                        domain="[('start_date', '>=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01'))]"/>
+                            -->    <!--<group expand="0" string="Grouper par">
+                    <filter string="Lit" context="{'group_by':'bed_id'}"/>
+                    <filter string="Mois" context="{'group_by':'start_date:month'}"/>
+                </group>-->
+            </search>
+        </field>
+    </record>
+
+    <record id="action_bed_occupation" model="ir.actions.act_window">
+        <field name="name">Historique occupation des lits</field>
+        <field name="res_model">clinic.bed.occupation</field>
+        <field name="view_mode">tree,form,pivot</field>
+    </record>
+
 
 </odoo>

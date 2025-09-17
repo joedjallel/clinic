@@ -13,6 +13,8 @@ class Service(models.Model):
     specialty = fields.Char(string="Spécialité")
     bed_count = fields.Integer(string="Nombre de lits")
     active = fields.Boolean(string="Actif", default=True)
+    doctor_id = fields.Many2one('res.partner', domain=[('doctor', '=', True)],
+                                string='Médecin responsable')
 
 
 # class Ward(models.Model):

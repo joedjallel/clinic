@@ -115,7 +115,7 @@
                      <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Solde des Relevés de Caisse</h5>
+                                <h5 class="card-title">Encaissements</h5>
                                 <div style="position: relative; height: 400px;">
                                       <canvas t-ref="cashStatementChart"/>
                                  </div>

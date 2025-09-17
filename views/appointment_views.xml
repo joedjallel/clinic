@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vue Kanban -->
+
+
     <record id="clinic_appointment_kanban_view" model="ir.ui.view">
         <field name="name">clinic.appointment.kanban</field>
         <field name="model">clinic.appointment</field>
@@ -7,62 +9,121 @@
             <kanban default_group_by="etape_file"
                     on_create="quick_create"
                     quick_create_view="clinic.appointment_quick_create_view"
-                    class="o_kanban_small_column">
+                    class="o_kanban_small_column o_kanban_dashboard">
+                <field name="id"/>
                 <field name="name"/>
                 <field name="patient_id"/>
                 <field name="doctor_id"/>
                 <field name="date_rdv"/>
                 <field name="etat"/>
                 <field name="priorite"/>
-                <field name="etape_file" options="{'group_expand': '_read_group_stage_ids'}"/>
+                <field name="etape_file"/>
+                <field name="is_past_due"/>
+                <field name="room_id"/>
+                <field name="couleur"/>
+                <field name="duration"/>
 
                 <templates>
                     <t t-name="kanban-box">
-                        <div class="oe_kanban_card oe_kanban_global_click">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click
+                                         #{record.priorite.raw_value == 'urgente' ? 'border-danger' : ''}
+                                         #{record.is_past_due.raw_value ? 'bg-warning-light' : ''}">
+
+                            <!-- En-tête avec statut -->
                             <div class="oe_kanban_content">
-                                <div class="o_kanban_record_top mb8">
+                                <div class="o_kanban_record_top mb-2">
                                     <div class="o_kanban_record_headings">
                                         <strong class="o_kanban_record_title">
-                                            <span>
-                                                <field name="name"/>
-                                            </span>
+                                            <field name="name"/>
                                         </strong>
-                                    </div>
-                                </div>
-                                <div class="o_kanban_record_body">
-                                    <div class="row mb4">
-                                        <div class="col-12">
-                                            <i class="fa fa-user"/>
-                                            <field name="patient_id"/>
+                                        <div class="float-right">
+                                            <span t-if="record.priorite.raw_value == 'urgente'"
+                                                  class="badge badge-danger">
+                                                <i class="fa fa-exclamation-triangle"/>
+                                                URGENT
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="float-right">
+                                                <button name="action_confirmer" string="Confirmer" type="object"
+                                                        class="btn-primary"
+                                                        invisible="etat != 'brouillon'"
+                                                        confirm="Êtes-vous sûr de vouloir confirmer ce rendez-vous ?"/>
+
+
+                                            </div>
+                                            <div class="float-left">
+                                                <button name="action_en_cours" string="Démarrer consultation"
+                                                        type="object"
+                                                        class="btn-success"
+                                                        invisible="etat != 'confirme'"
+                                                        icon="fa-stethoscope"/>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="row mb4" t-if="record.doctor_id.value">
+                                </div>
+
+                                <!-- Corps de la carte -->
+                                <div class="o_kanban_record_body">
+                                    <!-- Patient -->
+                                    <div class="row mb-1">
                                         <div class="col-12">
-                                            <i class="fa fa-user-md"/>
+                                            <i class="fa fa-user text-primary"/>
+                                            <strong>
+                                                <field name="patient_id"/>
+                                            </strong>
+                                        </div>
+                                    </div>
+
+                                    <!-- Médecin -->
+                                    <div class="row mb-1" t-if="record.doctor_id.value">
+                                        <div class="col-12">
+                                            <i class="fa fa-user-md text-success"/>
                                             <field name="doctor_id"/>
                                         </div>
                                     </div>
-                                    <div class="row mb4">
+
+                                    <!-- Date et heure -->
+                                    <div class="row mb-1">
                                         <div class="col-12">
-                                            <i class="fa fa-calendar"/>
-                                            <field name="date_rdv"/>
+                                            <i class="fa fa-calendar text-info"/>
+                                            <field name="date_rdv" widget="datetime"/>
+                                        </div>
+                                    </div><div class="row mb-1">
+                                        <div class="col-12">
+                                            <i class="fa fa-calendar text-info"/>
+                                            <field name="duration" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Salle -->
+                                    <div class="row mb-1" t-if="record.room_id.value">
+                                        <div class="col-12">
+                                            <i class="fa fa-door-open text-muted"/>
+                                            <field name="room_id"/>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="o_kanban_record_bottom">
+
+                                <!-- Pied de carte -->
+                                <div class="o_kanban_record_bottom mt-2">
                                     <div class="oe_kanban_bottom_left">
-                                        <span t-if="record.priorite.raw_value == 'urgente'" class="badge badge-danger">
-                                            <i class="fa fa-exclamation-triangle"/>
-                                            Urgente
+                                        <!-- Indicateur de retard -->
+                                        <span t-if="record.is_past_due.raw_value"
+                                              class="badge badge-warning">
+                                            <i class="fa fa-clock-o"/>
+                                            En retard
                                         </span>
-                                        <span t-else="" class="badge badge-secondary">Normale</span>
                                     </div>
                                     <div class="oe_kanban_bottom_right">
-                                        <span t-att-class="'badge ' + (record.etat.raw_value == 'confirme' ? 'badge-success' :
-                                                               record.etat.raw_value == 'en_cours' ? 'badge-warning' :
-                                                               record.etat.raw_value == 'termine' ? 'badge-info' :
-                                                               record.etat.raw_value == 'annule' ? 'badge-danger' :
-                                                               'badge-secondary')">
+                                        <!-- Badge d'état -->
+                                        <span t-att-class="'badge ' +
+                                                   (record.etat.raw_value == 'brouillon' ? 'badge-secondary' :
+                                                    record.etat.raw_value == 'confirme' ? 'badge-primary' :
+                                                    record.etat.raw_value == 'en_cours' ? 'badge-warning' :
+                                                    record.etat.raw_value == 'termine' ? 'badge-success' :
+                                                    record.etat.raw_value == 'annule' ? 'badge-danger' :
+                                                    'badge-light')">
                                             <field name="etat"/>
                                         </span>
                                     </div>
@@ -78,15 +139,19 @@
     <record id="appointment_quick_create_view" model="ir.ui.view">
         <field name="name">clinic.appointment.quick_create</field>
         <field name="model">clinic.appointment</field>
-        <field name="priority">1000</field>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <form>
                 <group>
-                    <field name="patient_id" string="Patient"/>
-                    <field name="doctor_id" string="Médecin"/>
-                    <field name="room_id" string="Salle de consultation"/>
-                    <field name="priorite" string="Priorité"/>
-
+                    <field name="patient_id" placeholder="Sélectionner le patient..."
+                           options="{'no_create': False, 'no_open': True}"/>
+                    <field name="date_rdv" widget="datetime"/>
+                    <field name="duration" />
+                    <field name="doctor_id" placeholder="Sélectionner le médecin..."
+                           options="{'no_create': False, 'no_open': True}"/>
+                    <field name="room_id" placeholder="Sélectionner la salle..."
+                           options="{'no_create': False, 'no_open': True}"/>
+                    <field name="priorite" widget="radio" options="{'horizontal': true}"/>
                 </group>
             </form>
         </field>
@@ -98,31 +163,93 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <!--                                <button name="action_confirmer" string="Confirmer" type="object"-->
-                    <!--                                        class="btn-primary" invisible="etat != 'brouillon'"/>-->
-                    <!--                                <button name="action_en_cours" string="Passer en Cours" type="object"-->
-                    <!--                                        invisible="etat != 'confirme'"/>-->
-                    <button name="action_create_encounter" string="Passer en Cours" type="object"
-                            invisible="etat != 'en_cours'"/>
-                    <field name="etat" widget="statusbar" statusbar_visible="brouillon,confirme,en_cours,termine"/>
-                </header>
-                <sheet>
-                    <group>
-                        <group>
-                            <field name="name"/>
-                            <field name="patient_id"/>
-                            <field name="doctor_id"/>
-                            <field name="date_rdv"/>
-                        </group>
-                        <group>
-                            <field name="priorite"/>
-                            <field name="etape_file"/>
-                            <field name="room_id"/>
-                        </group>
-                        <field name="note" placeholder="Ajouter des observations..." nolabel="1"/>
+                    <!-- Boutons d'action avec conditions améliorées -->
+                    <button name="action_confirmer" string="Confirmer" type="object"
+                            class="btn-primary"
+                            invisible="etat != 'brouillon'"
+                            confirm="Êtes-vous sûr de vouloir confirmer ce rendez-vous ?"/>
 
+                    <button name="action_en_cours" string="Démarrer consultation" type="object"
+                            class="btn-success"
+                            invisible="etat != 'confirme'"
+                            icon="fa-stethoscope"/>
+
+                    <!--                    <button name="action_create_encounter" string="Démarrer consultation" type="object"-->
+                    <!--                            class="btn-success"-->
+                    <!--                            invisible="etat != 'en_cours' or encounter_id"-->
+                    <!--                            icon="fa-stethoscope"/>-->
+
+                    <button name="action_terminer" string="Terminer" type="object"
+                            class="btn-info"
+                            invisible="etat not in ['en_cours']"
+                            confirm="Êtes-vous sûr de vouloir terminer ce rendez-vous ?"/>
+
+                    <button name="action_annuler" string="Annuler" type="object"
+                            class="btn-danger"
+                            invisible="etat in ['termine', 'annule']"
+                            confirm="Êtes-vous sûr de vouloir annuler ce rendez-vous ?"/>
+
+                    <button name="action_reprogrammer" string="Reprogrammer" type="object"
+                            class="btn-secondary"
+                            invisible="etat == 'termine'"/>
+
+                    <field name="etat" widget="statusbar"
+                           statusbar_visible="brouillon,confirme,en_cours,termine"
+                           statusbar_colors='{"annule":"red","termine":"blue"}'/>
+                </header>
+
+                <sheet>
+                    <!-- Alertes et indicateurs -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not is_past_due">
+                        <i class="fa fa-exclamation-triangle"/>
+                        <strong>Attention :</strong>
+                        Ce rendez-vous est en retard !
+                    </div>
+
+                    <div class="alert alert-success" role="alert"
+                         invisible="not encounter_id">
+                        <i class="fa fa-check-circle"/>
+                        <strong>Consultation créée :</strong>
+                        <field name="encounter_id" readonly="1"/>
+                    </div>
+
+                    <!-- Informations principales -->
+                    <group>
+                        <group string="Informations générales">
+                            <field name="is_past_due" readonly="1"/>
+                            <field name="can_start_encounter" readonly="1"/>
+                            <field name="encounter_id" invisible="1"/>
+                            <field name="name" readonly="1"/>
+                            <field name="patient_id"
+                                   options="{'no_create_edit': True}"
+                                   context="{'default_patient': True}"/>
+                            <field name="doctor_id"
+                                   options="{'no_create_edit': True}"
+                                   context="{'default_doctor': True}"/>
+                            <field name="date_rdv" widget="datetime"/>
+                            <field name="duration" widget="float_time"/>
+                            <field name="date_rdv_end" readonly="1" widget="datetime"/>
+                        </group>
+
+                        <group string="Organisation">
+                            <field name="priorite" widget="badge"
+                                   decoration-danger="priorite == 'urgente'"/>
+                            <field name="etape_file" options="{'no_create': True}"/>
+                            <field name="room_id"
+                                   domain="[('active', '=', True)]"
+                                   context="{'tree_view_ref': 'clinic.room_tree_view'}"/>
+                            <field name="service_id" readonly="1"/>
+                            <field name="bon_id" readonly="etat in ['termine', 'annule']"/>
+                        </group>
+                    </group>
+                    <group string="Observations">
+                        <field name="note" nolabel="1"
+                               placeholder="Ajouter des observations sur ce rendez-vous..."/>
                     </group>
                 </sheet>
+
+                <!-- Chatter pour le suivi -->
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
                     <field name="activity_ids"/>
@@ -132,20 +259,39 @@
         </field>
     </record>
 
-    <!-- Vue Arbre -->
     <record id="appointment_tree_view" model="ir.ui.view">
         <field name="name">clinic.appointment.tree</field>
         <field name="model">clinic.appointment</field>
         <field name="arch" type="xml">
-            <tree decoration-danger="priorite=='urgente'" decoration-success="etat=='confirme'"
-                  decoration-muted="etat=='termine'">
+            <tree decoration-danger="priorite=='urgente'"
+                  decoration-success="etat=='confirme'"
+                  decoration-warning="etat=='en_cours'"
+                  decoration-muted="etat=='termine'"
+                  decoration-bf="is_past_due">
+
+                <field name="encounter_id" invisible="1"/>
                 <field name="name"/>
                 <field name="patient_id"/>
-                <field name="doctor_id"/>
+                <field name="doctor_id" optional="show"/>
                 <field name="date_rdv" widget="datetime"/>
-                <field name="etat"/>
-                <field name="priorite"/>
-                <field name="etape_file"/>
+                <field name="duration" widget="float_time" optional="hide"/>
+                <field name="room_id" optional="show"/>
+                <field name="service_id" optional="hide"/>
+                <field name="priorite" widget="badge"
+                       decoration-danger="priorite == 'urgente'"/>
+                <field name="etat" widget="badge"
+                       decoration-success="etat == 'confirme'"
+                       decoration-warning="etat == 'en_cours'"
+                       decoration-info="etat == 'termine'"
+                       decoration-danger="etat == 'annule'"/>
+                <field name="etape_file" optional="show"/>
+                <field name="is_past_due" invisible="1"/>
+
+                <button name="action_confirmer" type="object"
+                        string="Confirmer" icon="fa-stethoscope"
+                        invisible="etat != 'brouillon'"
+                        class="btn-sm btn-primary"/>
+
             </tree>
         </field>
     </record>
@@ -155,40 +301,114 @@
         <field name="model">clinic.appointment</field>
         <field name="arch" type="xml">
             <search>
-                <field name="patient_id"/>
-                <field name="doctor_id"/>
-                <field name="date_rdv"/>
-                <field name="etape_file"/>
+                <!-- Champs de recherche -->
+                <field name="name" string="Référence"/>
+                <field name="patient_id" string="Patient"/>
+                <field name="doctor_id" string="Médecin"/>
+                <field name="room_id" string="Salle"/>
+                <field name="date_rdv" string="Date"/>
+                <field name="etape_file" string="Étape"/>
+
+                <!-- Filtres temporels -->
+                <separator/>
                 <filter string="Aujourd'hui" name="today"
-                        domain="[('date_rdv', '&gt;=', context_today()), ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                        domain="[('date_rdv', '&gt;=', context_today()),
+                                ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
                 <filter string="Cette semaine" name="this_week"
-                        domain="[('date_rdv', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')), ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=(6-context_today().weekday()))).strftime('%Y-%m-%d'))]"/>
+                        domain="[('date_rdv', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                ('date_rdv', '&lt;', (context_today() + datetime.timedelta(days=(6-context_today().weekday()))).strftime('%Y-%m-%d'))]"/>
+                <filter string="Ce mois" name="this_month"
+                        domain="[('date_rdv', '&gt;=', context_today().strftime('%Y-%m-01')),
+                                ('date_rdv', '&lt;', (context_today() + relativedelta(months=1)).strftime('%Y-%m-01'))]"/>
+
+                <!-- Filtres par état -->
                 <separator/>
-                <filter string="Brouillon" name="brouillon" domain="[('etat', '=', 'brouillon')]"/>
-                <filter string="Confirmé" name="confirme" domain="[('etat', '=', 'confirme')]"/>
-                <filter string="En Cours" name="en_cours" domain="[('etat', '=', 'en_cours')]"/>
-                <filter string="Terminé" name="termine" domain="[('etat', '=', 'termine')]"/>
+                <filter string="Brouillon" name="brouillon"
+                        domain="[('etat', '=', 'brouillon')]"/>
+                <filter string="Confirmé" name="confirme"
+                        domain="[('etat', '=', 'confirme')]"/>
+                <filter string="En Cours" name="en_cours"
+                        domain="[('etat', '=', 'en_cours')]"/>
+                <filter string="Terminé" name="termine"
+                        domain="[('etat', '=', 'termine')]"/>
+                <filter string="Annulé" name="annule"
+                        domain="[('etat', '=', 'annule')]"/>
+
+                <!-- Filtres spéciaux -->
                 <separator/>
-                <filter string="Urgente" name="urgente" domain="[('priorite', '=', 'urgente')]"/>
+                <filter string="Urgente" name="urgente"
+                        domain="[('priorite', '=', 'urgente')]"/>
+
+                <filter string="Avec consultation" name="with_encounter"
+                        domain="[('encounter_id', '!=', False)]"/>
+                <filter string="Sans médecin" name="no_doctor"
+                        domain="[('doctor_id', '=', False)]"/>
+
+                <!-- Groupements -->
                 <group expand="1" string="Grouper par">
-                    <filter name="group_etape_file" string="Étape File" context="{'group_by': 'etape_file'}"/>
-                    <filter name="group_doctor_id" string="Médecin" context="{'group_by': 'doctor_id'}"/>
-                    <filter name="group_etat" string="État" context="{'group_by': 'etat'}"/>
-                    <filter name="group_date" string="Date" context="{'group_by': 'date_rdv:day'}"/>
+                    <filter name="group_etape_file" string="Étape" domain="[]"
+                            context="{'group_by': 'etape_file'}"/>
+                    <filter name="group_doctor_id" string="Médecin" domain="[]"
+                            context="{'group_by': 'doctor_id'}"/>
+                    <filter name="group_etat" string="État" domain="[]"
+                            context="{'group_by': 'etat'}"/>
+                    <filter name="group_date" string="Date" domain="[]"
+                            context="{'group_by': 'date_rdv:day'}"/>
+                    <filter name="group_service" string="Service" domain="[]"
+                            context="{'group_by': 'service_id'}"/>
+                    <filter name="group_priorite" string="Priorité" domain="[]"
+                            context="{'group_by': 'priorite'}"/>
                 </group>
             </search>
         </field>
     </record>
 
+    <record id="appointment_calendar_view" model="ir.ui.view">
+        <field name="name">clinic.appointment.calendar</field>
+        <field name="model">clinic.appointment</field>
+        <field name="arch" type="xml">
+            <calendar string="Rendez-vous"
+                      date_start="date_rdv"
+                      date_stop="date_rdv_end"
+                      color="doctor_id">
+                <field name="patient_id"/>
+                <field name="doctor_id"/>
+                <field name="room_id"/>
+                <field name="etat"/>
+                <field name="priorite"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="appointment_pivot_view" model="ir.ui.view">
+        <field name="name">clinic.appointment.pivot</field>
+        <field name="model">clinic.appointment</field>
+        <field name="arch" type="xml">
+            <pivot string="Statistiques Rendez-vous">
+                <field name="date_rdv" type="row" interval="day"/>
+                <field name="doctor_id" type="col"/>
+                <field name="etat" type="col"/>
+                <field name="duration" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+
+    <!-- Action principale optimisée -->
     <record id="action_appointment" model="ir.actions.act_window">
         <field name="name">Rendez-vous</field>
         <field name="res_model">clinic.appointment</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,tree,form,calendar,pivot</field>
         <field name="search_view_id" ref="appointment_search_view"/>
-        <field name="context">{'group_by': 'etape_file'}</field>
+        <field name="context">{
+            'search_default_today': 1
+            }
+        </field>
         <field name="view_ids" eval="[(5, 0, 0),
         (0, 0, {'view_mode': 'kanban', 'view_id': ref('clinic_appointment_kanban_view')}),
         (0, 0, {'view_mode': 'tree', 'view_id': ref('appointment_tree_view')}),
         (0, 0, {'view_mode': 'form', 'view_id': ref('appointment_form_view')})]"/>
+
     </record>
+
 </odoo>
